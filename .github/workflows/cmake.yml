@@ -34,10 +34,21 @@ jobs:
 
        
     - name: Show Qt install directory
+      shell: pwsh
       run: |
-        echo "Qt6_DIR is: $Qt6_DIR"
-        echo "Qt installation root:"
-        dir $Qt6_DIR\..\..
+        $qtInstallPath = Get-Content $env:GITHUB_ENV | Select-String "Qt6_DIR" | ForEach-Object {
+          ($_ -split "=")[1].Trim()
+        }
+
+        if (-not $qtInstallPath) {
+          Write-Error "Qt6_DIR not found in environment file."
+          exit 1
+        }
+
+        Write-Host "Qt6_DIR = $qtInstallPath"
+        $qtRoot = Resolve-Path "$qtInstallPath\..\.."
+        Write-Host "Qt root directory:"
+        Get-ChildItem $qtRoot
 
       # Add Msvc compiler
     - name: Configure MSVC
