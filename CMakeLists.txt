@@ -152,7 +152,7 @@ endif()
 find_program(WINDEPLOYQT_EXE_FOUND windeployqt PATHS "${QT_BIN_DIR}" NO_DEFAULT_PATH)
 if(NOT WINDEPLOYQT_EXE_FOUND)
     message(FATAL_ERROR "Error: windeployqt.exe not found. Expected at ${QT_BIN_DIR}. Please ensure Qt development tools are correctly installed.")
-    set(WINDEPLOYQT_EXE "windeployqt}")
+   # set(WINDEPLOYQT_EXE "windeployqt}")
 else()
     set(WINDEPLOYQT_EXE "${WINDEPLOYQT_EXE_FOUND}") # Use the found path
     message(STATUS "Found windeployqt.exe at: ${WINDEPLOYQT_EXE}")
