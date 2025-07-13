@@ -1,0 +1,99 @@
+/* style.qss */
+
+/* Overall background color for the installer wizard */
+QWizard {
+    background-color: #F8F8F8; /* A very light gray */
+}
+
+/* Style for QPushButton (e.g., "Next", "Back", "Install" buttons) */
+QPushButton {
+    background-color: #007ACC; /* A nice blue */
+    color: white;              /* White text */
+    border: 1px solid #007ACC;
+    border-radius: 5px;        /* Slightly more rounded corners */
+    padding: 8px 18px;         /* Generous padding */
+    font-size: 14px;
+    font-weight: bold;
+}
+
+QPushButton:hover {
+    background-color: #005B9F; /* Darker blue on hover */
+    border: 1px solid #005B9F;
+}
+
+QPushButton:pressed {
+    background-color: #003F6B; /* Even darker blue when pressed */
+    border: 1px solid #003F6B;
+}
+
+QPushButton:disabled {
+    background-color: #A0A0A0; /* Gray for disabled buttons */
+    color: #E0E0E0;
+    border: 1px solid #A0A0A0;
+}
+
+/* Style for QLabel (general text labels) */
+QLabel {
+    color: #333333; /* Dark gray text */
+    font-size: 13px;
+}
+
+/* Style for the main title label on each wizard page */
+QWizardPage > QLabel#qt_wizard_title_label {
+    color: #007ACC; /* Match the primary blue */
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 10px; /* Add some space below the title */
+}
+
+/* Style for the subtitle label on each wizard page */
+QWizardPage > QLabel#qt_wizard_subtitle_label {
+    color: #666666; /* Medium gray for subtitle */
+    font-size: 14px;
+}
+
+/* Style for QCheckBox (e.g., "I accept the terms" or "Create desktop shortcut") */
+QCheckBox {
+    color: #444444; /* Darker text for checkboxes */
+}
+
+/* Style for QLineEdit (text input fields, e.g., installation path) */
+QLineEdit {
+    border: 1px solid #CCCCCC; /* Light gray border */
+    border-radius: 4px;
+    padding: 6px;
+    background-color: white;
+    color: #333333;
+    selection-background-color: #007ACC; /* Blue selection */
+    selection-color: white;
+}
+
+/* Style for QProgressBar */
+QProgressBar {
+    border: 1px solid #B0B0B0;
+    border-radius: 5px;
+    text-align: center; /* Center text like percentage */
+    background-color: #E0E0E0; /* Light gray background for the bar */
+    color: #333333; /* Text color for percentage */
+}
+
+QProgressBar::chunk {
+    background-color: #00BFFF; /* Deep sky blue for the progress fill */
+    border-radius: 5px;
+}
+
+/* Style for QGroupBox borders (if you use them to group widgets) */
+QGroupBox {
+    border: 1px solid #D0D0D0;
+    border-radius: 5px;
+    margin-top: 1ex; /* Space for title */
+    font-weight: bold;
+    color: #333333;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center; /* Title centered above border */
+    padding: 0 3px;
+    background-color: #F8F8F8; /* Match wizard background */
+}
