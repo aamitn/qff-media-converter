@@ -31,12 +31,11 @@ jobs:
         modules: 'qtmultimedia'
         install-deps: "true"
 
-    - name: Set MSVC environment (Community Edition)
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: |
-         call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat"
-      shell: cmd
+      # Add Msvc compiler
+    - name: Configure MSVC
+      uses: TheMrMilchmann/setup-msvc-dev@v3
+      with:
+        arch: x64
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
