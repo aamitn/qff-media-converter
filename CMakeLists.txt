@@ -136,10 +136,40 @@ get_filename_component(QT_ROOT_DIR "${QT_VERSION_DIR}" DIRECTORY)            # /
 
 # Construct the paths
 set(IFW_VERSION "4.10")
-set(BINARYCREATOR_EXE "${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin/binarycreator.exe")
-set(WINDEPLOYQT_EXE "${QT_BIN_DIR}/windeployqt.exe")
+# --- Verify existence of required tools and directories ---
+
+# 1. Check for binarycreator.exe
+find_program(BINARYCREATOR_EXE_FOUND binarycreator PATHS "${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin" NO_DEFAULT_PATH)
+if(NOT BINARYCREATOR_EXE_FOUND)
+    message(FATAL_ERROR "Error: binarycreator.exe not found. Expected at ${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin. Please check your Qt installation and IFW_VERSION (${IFW_VERSION}).")
+else()
+    set(BINARYCREATOR_EXE "${BINARYCREATOR_EXE_FOUND}") # Use the found path
+    message(STATUS "Found binarycreator.exe at: ${BINARYCREATOR_EXE}")
+endif()
+
+# 2. Check for windeployqt.exe
+find_program(WINDEPLOYQT_EXE_FOUND windeployqt PATHS "${QT_BIN_DIR}" NO_DEFAULT_PATH)
+if(NOT WINDEPLOYQT_EXE_FOUND)
+    message(FATAL_ERROR "Error: windeployqt.exe not found. Expected at ${QT_BIN_DIR}. Please ensure Qt development tools are correctly installed.")
+else()
+    set(WINDEPLOYQT_EXE "${WINDEPLOYQT_EXE_FOUND}") # Use the found path
+    message(STATUS "Found windeployqt.exe at: ${WINDEPLOYQT_EXE}")
+endif()
+
+# 3. Set and check RELEASE_DIR (This is a build directory, CMake will create it)
 set(RELEASE_DIR "${CMAKE_CURRENT_BINARY_DIR}/dist")
+# CMake's make_directory command in post_build will create this, no need for pre-check here.
+# message(STATUS "Release directory will be: ${RELEASE_DIR}") # Optional: for info
+
+# 4. Set and check PACKAGE_DATA_DIR (This is usually a source directory, should exist or be created by custom commands)
 set(PACKAGE_DATA_DIR "${CMAKE_SOURCE_DIR}/packages/com.bitmutex.qffgui/data")
+if(NOT IS_DIRECTORY "${PACKAGE_DATA_DIR}")
+    # You can either create it or error out. For an existing structure, erroring is safer.
+    message(FATAL_ERROR "Error: Package data directory not found: ${PACKAGE_DATA_DIR}. Please ensure this directory exists.")
+else()
+    message(STATUS "Package data directory found at: ${PACKAGE_DATA_DIR}")
+endif()
+
 
 # Add post-build commands
 
