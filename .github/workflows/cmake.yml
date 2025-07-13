@@ -22,7 +22,7 @@ jobs:
 
     - name: Install Qt
       # Installs the Qt SDK
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v4
       with:
         version: '6.9.1'
         host: 'windows'
