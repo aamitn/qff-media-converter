@@ -33,11 +33,8 @@ jobs:
         tools: 'tools_ifw'
         install-deps: "true"
 
-    - name: Print Qt installation path
-      run: |
-        echo "Qt installation path (using PATH): $PATH"
-        echo "Qt6_DIR: ${{ env.Qt6_DIR }}"
-        echo "Qt5_DIR: ${{ env.Qt5_DIR }}"
+    - name: checkbincret
+      run: binarycreator.exe
 
       # Add Msvc compiler
     - name: Configure MSVC
