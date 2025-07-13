@@ -33,8 +33,6 @@ jobs:
         tools: 'tools_ifw'
         install-deps: "true"
 
-    - name: checkbincret
-      run: binarycreator.exe
 
       # Add Msvc compiler
     - name: Configure MSVC

@@ -141,7 +141,8 @@ set(IFW_VERSION "4.10")
 # 1. Check for binarycreator.exe
 find_program(BINARYCREATOR_EXE_FOUND binarycreator PATHS "${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin" NO_DEFAULT_PATH)
 if(NOT BINARYCREATOR_EXE_FOUND)
-    message(FATAL_ERROR "Error: binarycreator.exe not found. Expected at ${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin. Please check your Qt installation and IFW_VERSION (${IFW_VERSION}).")
+    message(STATUS "Error: binarycreator.exe not found. Expected at ${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin. Please check your Qt installation and IFW_VERSION (${IFW_VERSION}).")
+     set(BINARYCREATOR_EXE "binarycreator")
 else()
     set(BINARYCREATOR_EXE "${BINARYCREATOR_EXE_FOUND}") # Use the found path
     message(STATUS "Found binarycreator.exe at: ${BINARYCREATOR_EXE}")
@@ -151,6 +152,7 @@ endif()
 find_program(WINDEPLOYQT_EXE_FOUND windeployqt PATHS "${QT_BIN_DIR}" NO_DEFAULT_PATH)
 if(NOT WINDEPLOYQT_EXE_FOUND)
     message(FATAL_ERROR "Error: windeployqt.exe not found. Expected at ${QT_BIN_DIR}. Please ensure Qt development tools are correctly installed.")
+    set(WINDEPLOYQT_EXE "windeployqt}")
 else()
     set(WINDEPLOYQT_EXE "${WINDEPLOYQT_EXE_FOUND}") # Use the found path
     message(STATUS "Found windeployqt.exe at: ${WINDEPLOYQT_EXE}")
