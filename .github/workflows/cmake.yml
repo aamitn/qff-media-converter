@@ -8,14 +8,10 @@ on:
     branches: [ "main" ]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Debug
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: windows-latest
 
     steps:
@@ -23,7 +19,6 @@ jobs:
 
     - name: Install Qt
       id: install-qt
-      # Installs the Qt SDK
       uses: jurplel/install-qt-action@v4
       with:
         version: '6.9.1'
@@ -34,34 +29,42 @@ jobs:
         tools: 'tools_ifw'
         install-deps: "true"
 
-
-      # Add Msvc compiler
     - name: Configure MSVC
       uses: TheMrMilchmann/setup-msvc-dev@v3
       with:
         arch: x64
 
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -S . -B ${{github.workspace}}/build 
 
     - name: Build
-      # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build 
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}}
 
-    - name: Upload Artifacts to GitHub Release
+    - name: Upload Release (Tag Push - Final Release)
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         files: |
           dist.zip
           qff_installer.exe
+        draft: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Draft Release (Untagged Push)
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        name: "Development Build - ${{ github.sha }}"
+        tag_name: "dev-${{ github.run_number }}"
+        files: |
+          dist.zip
+          qff_installer.exe
+        draft: true
+        prerelease: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
