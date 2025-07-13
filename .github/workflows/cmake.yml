@@ -33,12 +33,11 @@ jobs:
         tools: 'tools_ifw'
         install-deps: "true"
 
-       
-    - name: Show Qt install directory
-      shell: cmd
+    - name: Print Qt installation path
       run: |
-        echo Qt tools path is: ${{ steps.install-qt.outputs.qt_tools_path }}
-        dir "${{ steps.install-qt.outputs.qt_tools_path }}"
+        echo "Qt installation path (using PATH): $PATH"
+        echo "Qt6_DIR: ${{ env.Qt6_DIR }}"
+        echo "Qt5_DIR: ${{ env.Qt5_DIR }}"
 
       # Add Msvc compiler
     - name: Configure MSVC
