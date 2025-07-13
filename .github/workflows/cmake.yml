@@ -60,7 +60,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         name: "Development Build - ${{ github.sha }}"
-        tag_name: "dev-${{ github.run_number }}"
+        tag_name: "dev"
         files: |
           dist.zip
           qff_installer.exe
