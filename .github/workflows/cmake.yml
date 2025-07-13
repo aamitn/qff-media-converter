@@ -1,4 +1,4 @@
-name: CMake
+name: CMake Deploy
 
 on:
   push:
@@ -6,6 +6,9 @@ on:
     tags: [ "*" ]   
   pull_request:
     branches: [ "main" ]
+
+permissions:
+  contents: write
 
 env:
   BUILD_TYPE: Debug
