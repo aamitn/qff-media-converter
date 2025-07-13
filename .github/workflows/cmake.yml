@@ -32,6 +32,13 @@ jobs:
         tools: 'tools_ifw tools_qtcreator,qt.tools.qtcreator'
         install-deps: "true"
 
+       
+    - name: Show Qt install directory
+      run: |
+        echo "Qt6_DIR is: $Qt6_DIR"
+        echo "Qt installation root:"
+        dir $Qt6_DIR\..\..
+
       # Add Msvc compiler
     - name: Configure MSVC
       uses: TheMrMilchmann/setup-msvc-dev@v3
