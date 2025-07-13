@@ -80,7 +80,7 @@ CMakeLists.txt.user*
 .rcc/
 .uic/
 /build*/
-qff_installer.exe
+
 
 
 /.vscode/
@@ -89,3 +89,7 @@ qff_installer.exe
 /Release/
 /Debug/
 /x64/
+
+
+dist.zip
+qff_installer.exe

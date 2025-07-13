@@ -142,7 +142,7 @@ set(IFW_VERSION "4.10")
 find_program(BINARYCREATOR_EXE_FOUND binarycreator PATHS "${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin" NO_DEFAULT_PATH)
 if(NOT BINARYCREATOR_EXE_FOUND)
     message(STATUS "Error: binarycreator.exe not found. Expected at ${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin. Please check your Qt installation and IFW_VERSION (${IFW_VERSION}).")
-     set(BINARYCREATOR_EXE "binarycreator")
+     set(BINARYCREATOR_EXE "binarycreator") # CI Override
 else()
     set(BINARYCREATOR_EXE "${BINARYCREATOR_EXE_FOUND}") # Use the found path
     message(STATUS "Found binarycreator.exe at: ${BINARYCREATOR_EXE}")
@@ -152,7 +152,6 @@ endif()
 find_program(WINDEPLOYQT_EXE_FOUND windeployqt PATHS "${QT_BIN_DIR}" NO_DEFAULT_PATH)
 if(NOT WINDEPLOYQT_EXE_FOUND)
     message(FATAL_ERROR "Error: windeployqt.exe not found. Expected at ${QT_BIN_DIR}. Please ensure Qt development tools are correctly installed.")
-   # set(WINDEPLOYQT_EXE "windeployqt}")
 else()
     set(WINDEPLOYQT_EXE "${WINDEPLOYQT_EXE_FOUND}") # Use the found path
     message(STATUS "Found windeployqt.exe at: ${WINDEPLOYQT_EXE}")
@@ -213,7 +212,11 @@ add_custom_command(TARGET qffgui POST_BUILD
 
     COMMENT "Deploying with windeployqt and copying release contents to packages/com.bitmutex.qffgui/data"
 
-    # Step 6: Generate Windows Installer
+    # Step 6: Create Zip distributable
+    COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${CMAKE_SOURCE_DIR}/dist.zip" --format=zip "${RELEASE_DIR}"
+    COMMENT "Creating ZIP archive dist.zip from ${RELEASE_DIR}"
+
+    # Step 7: Generate Windows Installer
     COMMAND "${BINARYCREATOR_EXE}"
         -c "${CMAKE_SOURCE_DIR}/config/config.xml"
         -p "${CMAKE_SOURCE_DIR}/packages"
