@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM Get the directory where this script is located
+REM Get the directory where this script is located at
 set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%"
 
