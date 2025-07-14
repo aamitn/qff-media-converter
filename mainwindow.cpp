@@ -34,9 +34,14 @@ MainWindow::MainWindow(QWidget *parent)
     mediaPlayer(nullptr), audioOutput(nullptr), videoWidget(nullptr), imagePreviewLabel(nullptr),
     waveformWidget(nullptr), ffmpegWaveformProcess(nullptr),
     m_currentMediaDuration(0),
-    m_autoplayEnabled(true)
+    m_autoplayEnabled(true),
+    m_updateEnabled(false)
 {
     ui->setupUi(this);
+
+    QSettings settings; // QSettings instance
+    m_updateEnabled = settings.value("AutoUpdate/Enabled", true).toBool();
+    qDebug() << "Initial Auto-Update status loaded from settings:" << m_updateEnabled;
 
     // Initialize UpdateManager
     updateManager = new UpdateManager(this); // Make MainWindow the parent
@@ -48,7 +53,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(updateManager, &UpdateManager::updateInitiated, this, &MainWindow::handleUpdateInitiated);
     connect(updateManager, &UpdateManager::error, this, &MainWindow::handleUpdateManagerError);
 
-    updateManager->checkForUpdates();
+    if (m_updateEnabled) {
+        updateManager->checkForUpdates();
+        qDebug() << "Automatic update check enabled and initiated.";
+    } else {
+        qDebug() << "Automatic update check disabled.";
+    }
 
     // ---Instantiate Menu Bar ---
     setMenuBar(MenuBarHelper::createMenuBar(this));
@@ -819,6 +829,21 @@ bool MainWindow::isAutoplayEnabled() const {
     return m_autoplayEnabled;
 }
 
+void MainWindow::setUpdateEnabled(bool enabled) {
+    m_updateEnabled = enabled;
+    qDebug() << "Auto-Update enabled set to:" << enabled;
+
+    // --- Persist the new setting ---
+    QSettings settings;
+    settings.setValue("AutoUpdate/Enabled", enabled);
+    settings.sync(); //ensures data is written to persistent storage immediately
+}
+
+
+bool MainWindow::isUpdateEnabled() const {
+    return m_updateEnabled;
+}
+
 // Implement the slots to handle signals from UpdateManager
 void MainWindow::handleUpdateCheckFinished(bool updateAvailable, const QString &latestVersion) {
     if (updateAvailable) {
@@ -857,3 +882,4 @@ void MainWindow::handleUpdateManagerError(const QString &message) {
     QMessageBox::critical(this, "Update Error", QString("An error occurred during update: %1").arg(message));
     qWarning() << "Update Error:" << message;
 }
+

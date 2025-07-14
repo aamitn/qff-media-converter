@@ -75,6 +75,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         images.qrc
         ${app_icon_macos}
         ${app_icon_resource_windows}
+        downloadprogressdialog.h downloadprogressdialog.cpp
+
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET qffgui APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
@@ -177,25 +179,24 @@ endif()
 #Generate Windows Distributable
 add_custom_command(TARGET qffgui POST_BUILD
 
-     # Step 0: Copy Python Script
+    # Step 0: Copy Scripts to build dir from project base
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/update_helper.cmd"
+        "${CMAKE_SOURCE_DIR}/update_helper.sh"
         "${CMAKE_SOURCE_DIR}/unzip_ffmpeg.py"
-        "$<TARGET_FILE_DIR:qffgui>/unzip_ffmpeg.py"
+        "$<TARGET_FILE_DIR:qffgui>"
+    COMMENT "Copying helper scripts to build output directory"
 
-    # Step 0: Copy Python Script
-   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-       "${CMAKE_SOURCE_DIR}/unzip_ffmpeg.py"
-       "${RELEASE_DIR}/unzip_ffmpeg.py"
-   COMMENT "Copying Python script to build output directory"
-
-   # Copy the update helper script to the release directory (and thus into the package data)
-   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-       "${CMAKE_CURRENT_SOURCE_DIR}/update_helper.cmd" # Assuming update_helper.bat is in your source root
-       "${RELEASE_DIR}/update_helper.cmd"
-   COMMENT "Copying update helper script."
-
-    # Step 1: Create release directory
+    # Step 0: Create release directory
     COMMAND ${CMAKE_COMMAND} -E make_directory "${RELEASE_DIR}"
+
+    # Step 0: Copy Scripts to release dir/dist
+   COMMAND ${CMAKE_COMMAND} -E copy_if_different
+       "${CMAKE_SOURCE_DIR}/update_helper.cmd"
+       "${CMAKE_SOURCE_DIR}/update_helper.sh"
+       "${CMAKE_SOURCE_DIR}/unzip_ffmpeg.py"
+       "${RELEASE_DIR}"
+   COMMENT "Copying Python script to build output directory"
 
     # Step 2: Copy built exe to release directory
     COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:qffgui>" "${RELEASE_DIR}/qffgui.exe"
@@ -205,7 +206,7 @@ add_custom_command(TARGET qffgui POST_BUILD
     COMMAND "${WINDEPLOYQT_EXE}" "${RELEASE_DIR}/qffgui.exe"
 
     # Step 4: Create destination directory in packages folder
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${PACKAGE_DATA_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${PACKAGE_DATA_DIR}"1
 
     # Step 5: Copy all contents of release/ to package folder
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${RELEASE_DIR}" "${PACKAGE_DATA_DIR}"

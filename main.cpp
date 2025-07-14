@@ -13,6 +13,9 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    QCoreApplication::setApplicationName("QFF Media Converter");
+    QCoreApplication::setOrganizationName("Bitmutex Technologies");
+
     FfmpegStatusDialog dlg;
     dlg.setStatus("Checking for FFmpeg...");
     dlg.show();

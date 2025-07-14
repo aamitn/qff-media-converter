@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QMediaPlayer>       // For audio and video playback control
 #include <QVideoWidget> // For video display
+#include <QSettings>
 
 QString formatFileSize(quint64 bytes);
 
@@ -25,8 +26,10 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void browseFile();
-    void setAutoplayEnabled(bool enabled); // Slot to connect QAction's toggled signal
+    void setAutoplayEnabled(bool enabled);
+    void setUpdateEnabled(bool enabled);
     bool isAutoplayEnabled() const;
+    bool isUpdateEnabled() const;
 
 private slots:
     void browseOutputFile();
@@ -86,6 +89,7 @@ private:
     qint64 m_currentMediaDuration; // Store the duration for waveform scaling
 
     bool m_autoplayEnabled;
+    bool m_updateEnabled;
 
     static const QStringList SUPPORTED_VIDEO_FORMATS;
     static const QStringList SUPPORTED_AUDIO_FORMATS;

@@ -10,6 +10,12 @@
 
 // --- NEW: Function definition takes MainWindow* ---
 QMenuBar* MenuBarHelper::createMenuBar(MainWindow *mainWindow) {
+
+    if (!mainWindow) {
+        qWarning() << "MenuBarHelper: Parent is not a MainWindow instance. Cannot setup update action.";
+        return nullptr;
+    }
+
     QMenuBar *menuBar = new QMenuBar(mainWindow); // Use mainWindow as parent for menuBar
 
     QMenu *fileMenu = menuBar->addMenu("&File");
@@ -18,12 +24,21 @@ QMenuBar* MenuBarHelper::createMenuBar(MainWindow *mainWindow) {
     QObject::connect(openFileAction, &QAction::triggered, mainWindow, &MainWindow::browseFile);
     openFileAction->setShortcut(QKeySequence("Ctrl+O"));
 
-    // --- NEW: Enable Autoplay Action ---
+    // --- Enable Autoplay Action ---
     QAction *enableAutoplayAction = fileMenu->addAction("Enable Autoplay");
     enableAutoplayAction->setCheckable(true);
     // Set initial state based on MainWindow's current setting
     enableAutoplayAction->setChecked(mainWindow->isAutoplayEnabled());
     QObject::connect(enableAutoplayAction, &QAction::toggled, mainWindow, &MainWindow::setAutoplayEnabled);
+
+    // --- Update Action ---
+    QAction *autoUpdateAction = fileMenu->addAction("Auto-Update on Startup"); // More descriptive text
+    autoUpdateAction->setCheckable(true);
+    // Set the initial checked state from MainWindow's loaded setting
+    autoUpdateAction->setChecked(mainWindow->isUpdateEnabled());
+    QObject::connect(autoUpdateAction, &QAction::toggled, mainWindow, &MainWindow::setUpdateEnabled);
+
+
 
     fileMenu->addSeparator(); // Add a separator for better organization
 

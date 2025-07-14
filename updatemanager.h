@@ -18,6 +18,7 @@ public:
 
     // Call this method to start checking for updates
     void checkForUpdates();
+    void abortDownload();
 
 signals:
     // Signals to communicate update status
@@ -43,12 +44,12 @@ private:
     QFile *downloadFile;
 
     // Update Check Configuration for your GitHub repository
-    const QString GITHUB_OWNER = "aamitn"; // <<--- REPLACE THIS
-    const QString GITHUB_REPO = "winhider"; // <<--- REPLACE THIS
+    const QString GITHUB_OWNER = "aamitn"; //
+    const QString GITHUB_REPO = "qff-media-converter"; //
 
     // Optional: Define your application's current version
     // It's often set via CMake or .pro file, and accessed via QCoreApplication::applicationVersion()
-    // but you can pass it to the constructor or update it if needed.
+    // but we can pass it to the constructor or update it if needed.
     QString currentAppVersion;
 };
 

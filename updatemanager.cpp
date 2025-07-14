@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <QProgressDialog>
+#include <QFile>
 
 UpdateManager::UpdateManager(QObject *parent)
     : QObject(parent),
@@ -40,11 +42,7 @@ UpdateManager::~UpdateManager() {
     if (downloadFile && downloadFile->isOpen()) {
         downloadFile->close();
     }
-    // QTemporaryDir deletes its contents on destruction, but it's good to ensure.
-    if (tempUpdateDir) {
-        // tempUpdateDir->remove(); // Will be removed on destruction if valid
-        delete tempUpdateDir;
-    }
+
 }
 
 void UpdateManager::checkForUpdates() {
@@ -108,21 +106,12 @@ void UpdateManager::handleLatestReleaseReply() {
 void UpdateManager::downloadUpdate(const QString &url) {
     qDebug() << "Downloading update from:" << url;
 
-    tempUpdateDir = new QTemporaryDir();
-    if (!tempUpdateDir->isValid()) {
-        emit error("Could not create temporary directory for update.");
-        delete tempUpdateDir;
-        tempUpdateDir = nullptr;
-        return;
-    }
+    QString appDir = QCoreApplication::applicationDirPath();
+    QString updateFilePath = appDir + "/update.zip"; // Or use QDir::separator()
 
-    QString localFileName = tempUpdateDir->path() + "/update.zip"; // Or a more specific name
-    downloadFile = new QFile(localFileName);
+    downloadFile = new QFile(updateFilePath);
     if (!downloadFile->open(QIODevice::WriteOnly)) {
         emit error(QString("Could not open file for download: %1").arg(downloadFile->errorString()));
-        tempUpdateDir->remove();
-        delete tempUpdateDir;
-        tempUpdateDir = nullptr;
         delete downloadFile;
         downloadFile = nullptr;
         return;
@@ -130,6 +119,15 @@ void UpdateManager::downloadUpdate(const QString &url) {
 
     QNetworkRequest request(url);
     downloadReply = networkManager->get(request);
+
+
+    QProgressDialog *progressDialog = new QProgressDialog(nullptr);
+    progressDialog->setWindowTitle("Downloading Update...");
+    progressDialog->setLabelText("Please wait while the update is being downloaded...");
+    progressDialog->setRange(0, 100);
+    connect(downloadReply, &QNetworkReply::downloadProgress, [progressDialog](qint64 bytesReceived, qint64 bytesTotal) {
+        progressDialog->setValue(int((bytesReceived * 100.0 / bytesTotal) + 1));
+    });
 
     connect(downloadReply, &QNetworkReply::downloadProgress, this, &UpdateManager::handleDownloadProgress);
     connect(downloadReply, &QNetworkReply::readyRead, this, &UpdateManager::handleReadyRead);
@@ -149,15 +147,20 @@ void UpdateManager::handleReadyRead() {
 void UpdateManager::handleDownloadFinished() {
     if (!downloadReply) return;
 
+    QProgressDialog *progressDialog = qobject_cast<QProgressDialog*>(sender());
+    if (progressDialog != nullptr)
+        progressDialog->close();
+
     downloadFile->close();
 
     if (downloadReply->error() == QNetworkReply::NoError) {
         emit updateDownloadFinished(true);
+
         // Important: Pass the path to the downloaded zip and the temp dir where it's located
         initiateUpdateProcess(downloadFile->fileName(), tempUpdateDir->path());
     } else {
         emit updateDownloadFinished(false, QString("Update download failed: %1").arg(downloadReply->errorString()));
-        tempUpdateDir->remove(); // Clean up temp dir on failure
+       // tempUpdateDir->remove(); // Clean up temp dir on failure
     }
 
     downloadReply->deleteLater();
@@ -171,50 +174,30 @@ void UpdateManager::handleDownloadFinished() {
 void UpdateManager::initiateUpdateProcess(const QString &zipFilePath, const QString &tempDirPath) {
     qDebug() << "Initiating update process...";
 
+    // Step 2: Prepare script and launch
     QString appInstallDir = QCoreApplication::applicationDirPath();
-    // Path to the update helper script you bundled with your application
-    // Ensure this script (update_helper.bat/sh) is deployed with your app
+
 #ifdef Q_OS_WIN
     QString updaterScriptPath = appInstallDir + "/update_helper.cmd";
-#elif defined(Q_OS_UNIX) // Linux and macOS
+#elif defined(Q_OS_UNIX)
     QString updaterScriptPath = appInstallDir + "/update_helper.sh";
     QFile scriptFile(updaterScriptPath);
     if (scriptFile.exists()) {
-        // Ensure the script is executable on Unix-like systems
         scriptFile.setPermissions(scriptFile.permissions() | QFile::ExeUser | QFile::ExeGroup | QFile::ExeOther);
     }
 #else
-    emit error("Unsupported operating system for auto-update.");
+    emit error("Unsupported OS for update.");
     return;
 #endif
 
     if (!QFile::exists(updaterScriptPath)) {
-        emit error(QString("Updater script not found at: %1. Please ensure it's deployed with your app.").arg(updaterScriptPath));
-        tempUpdateDir->remove();
+        emit error("Updater script not found at: " + updaterScriptPath);
         return;
     }
 
-    // Pass necessary arguments to the updater script
-    QStringList arguments;
-    arguments << QDir::toNativeSeparators(appInstallDir); // Arg 1: Target installation directory
-    arguments << QDir::toNativeSeparators(tempDirPath);   // Arg 2: Temp directory where downloaded zip and maybe extracted files are
-    arguments << QDir::toNativeSeparators(zipFilePath);   // Arg 3: Path to the downloaded zip file
-    arguments << QCoreApplication::applicationName();     // Arg 4: Application Name (e.g., qffgui)
-    arguments << QCoreApplication::applicationName() + (
-#ifdef Q_OS_WIN
-                     ".exe"
-#else
-                     "" // No extension on Linux/macOS typically
-#endif
-                     ); // Arg 5: Full executable name (e.g., qffgui.exe)
+    qDebug() << "Launching updater without arguments:" << updaterScriptPath;
+    QProcess::startDetached(updaterScriptPath);
 
-    qDebug() << "Launching updater:" << updaterScriptPath << arguments;
-    QProcess::startDetached(updaterScriptPath, arguments);
-
-    // After launching the updater, the main application *must* quit
-    // to allow the updater to replace files.
-    emit updateInitiated(); // Notify that update is starting and app will exit
+    emit updateInitiated();
     QCoreApplication::quit();
-
-    // The tempUpdateDir will be cleaned up by the updater script or on UpdateManager destruction.
 }

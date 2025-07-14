@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>QFF Media Converter</string>
   </property>
+
+
+
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="mainVerticalLayout">
     <item>
