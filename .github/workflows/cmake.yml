@@ -214,12 +214,12 @@ jobs:
         QT_BIN_DIR=$(find $(echo $QT_ROOT_DIR) -name "bin" -type d)
         echo "QT_BIN_DIR: $QT_BIN_DIR"
         export PATH=$QT_BIN_DIR:$PATH
-        macdeployqt ${{github.workspace}}/build/your_app_name.app -qmldir="${{github.workspace}}/your_qml_dir"
+        macdeployqt ${{github.workspace}}/build/qffgui -qmldir="${{github.workspace}}/"
       working-directory: ${{github.workspace}}/build
 
     - name: Create macOS DMG
       run: |
-        APP_NAME="your_app_name" # Replace with your actual app name (e.g., "qffgui")
+        APP_NAME="qffgui" # Replace with your actual app name (e.g., "qffgui")
         DMG_NAME="${APP_NAME}-Installer.dmg" # Name of the output DMG file
         APP_PATH="${{github.workspace}}/build/${APP_NAME}.app"
         DMG_PATH="${{github.workspace}}/build/${DMG_NAME}"
@@ -283,7 +283,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}/build/your_app_name-Installer.dmg # The macOS DMG file
+          ${{github.workspace}}/build/*.dmg # The macOS DMG file
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -295,7 +295,7 @@ jobs:
         name: "Development Build - ${{ github.sha }}"
         tag_name: "dev-macos"
         files: |
-          ${{github.workspace}}/build/your_app_name-Installer.dmg
+          ${{github.workspace}}/build/*.dmg
         draft: true
         prerelease: true
       env:
