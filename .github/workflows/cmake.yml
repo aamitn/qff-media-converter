@@ -91,11 +91,12 @@ jobs:
       id: install-qt
       uses: jurplel/install-qt-action@v4
       with:
+        aqtversion: '==3.1.*'
         version: '6.9.1'
         host: 'linux'
         target: 'desktop'
-        arch: 'gcc_64' # Common Linux GCC architecture
-        modules: qtmultimedia
+        arch: 'linux_gcc_64' # Common Linux GCC architecture
+        modules: 'qtmultimedia'
         tools: 'tools_ifw' # If you plan to build Linux installers with IFW
         setup-python: false
 
