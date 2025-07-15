@@ -95,6 +95,8 @@ jobs:
         host: 'linux'
         target: 'desktop'
         arch: 'gcc_64' # Common Linux GCC architecture
+        modules: 'qtmultimedia'
+        use-official: true # Use official Qt packages from the repository
         tools: 'tools_ifw' # If you plan to build Linux installers with IFW
         install-deps: "true" # Installs Qt runtime dependencies
 
