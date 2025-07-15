@@ -3,8 +3,8 @@ name: CMake Deploy
 on:
   push:
     branches: [ "main" ]
-    tags: [ "*" ]
-  pull_request:
+    tags: [ "*" ]   
+  pull_request: 
     branches: [ "main" ]
 
 permissions:
@@ -16,28 +16,21 @@ env:
 jobs:
   # --- START OF NEW WINDOWS BUILD JOB ---
   build-win:
-    # Removed 'needs: build-linux' as Windows build usually doesn't depend on Linux build completion.
-    # If they are truly independent, removing 'needs' can speed up parallel execution.
+    needs: build-linux # Ensure Windows build completes first, if needed
     runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
 
-    # On Windows, apt-get is not used for build dependencies.
-    # - name: Install Build Dependencies
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install -y build-essential libgl-dev # Essential build tools and OpenGL libs
-
     - name: Install Qt
       id: install-qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.8.3' # <--- CHANGE TO STABLE VERSION FOR CONSISTENCY
+        version: '6.9.1'
         host: 'windows'
         target: 'desktop'
         arch: 'win64_msvc2022_64'
-        modules: 'qtmultimedia qtpdf' # <--- ADD qtpdf if used, keep qtmultimedia
+        modules: 'qtmultimedia'
         tools: 'tools_ifw'
         install-deps: "true"
 
@@ -47,10 +40,10 @@ jobs:
         arch: x64
 
     - name: Configure CMake
-      run: cmake -S . -B ${{github.workspace}}/build
+      run: cmake -S . -B ${{github.workspace}}/build 
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build
+      run: cmake --build ${{github.workspace}}/build 
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -98,11 +91,10 @@ jobs:
       id: install-qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.8.3'
+        version: '6.9.1'
         host: 'linux'
         target: 'desktop'
         arch: 'gcc_64' # Common Linux GCC architecture
-        modules: 'qtbase qtmultimedia qtpdf' # <--- EXPLICITLY ADD 'qtbase' and 'qtpdf'
         tools: 'tools_ifw' # If you plan to build Linux installers with IFW
         install-deps: "true" # Installs Qt runtime dependencies
 
@@ -114,6 +106,10 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Run CPack (Optional -> If you want to create installers/packages)
+      # This step assumes you have CPack configuration in your CMakeLists.txt
+      # and that your Linux build will produce a .deb, .rpm, .tar.gz or AppImage
+      # For AppImage, you might need to install appimagetool or use a specific action.
+      # Example for a simple .tar.gz or .deb if configured in CMake:
       run: cmake --build ${{github.workspace}}/build --target package
       working-directory: ${{github.workspace}}/build # CPack usually runs from build directory
 
@@ -121,20 +117,42 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}
 
+    # Optional: Packaging the application for distribution (e.g., AppImage, tar.gz)
+    # This will depend on your CMake setup for packaging.
     - name: Package Linux Application
+      # Example: create a tar.gz of your built application directory
+      # This assumes your built executable and its dependencies are in a 'build/bin' or similar folder.
+      # You need to adjust 'your_app_name' and the path.
       run: |
+        # Use linuxdeploy or appimagetool if you want to create an AppImage
+        # For a simple tar.gz:
         cd ${{github.workspace}}/build
+        # Assume your application is built into a directory like 'build/your_app_name_dir'
+        # You'll likely need to use windeployqt/macdeployqt/linuxdeployqt equivalent or manual packaging here.
+        # This is a placeholder; you'll need to detail your specific packaging steps.
+        # For a simple example:
         mkdir staged_app
-        cp -r bin/your_app_executable staged_app/
-        tar -czvf dist_linux.tar.gz -C . staged_app
-      working-directory: ${{github.workspace}}/build
+        cp -r bin/your_app_executable staged_app/ # Copy your executable
+        # Use ldd to find runtime dependencies and copy them to staged_app if not static
+        # For Qt apps, you typically use linuxdeployqt or a similar tool for proper bundling
+        # If your build produces a self-contained folder:
+        # cp -r your_built_app_folder staged_app/
+        tar -czvf dist_linux.tar.gz -C . staged_app # Example: create a tar.gz of the staged app
+        # If you used CPack, the package might already be in the build directory, e.g., .deb, .rpm
+        # For example, if CPack creates an AppImage named 'your_app_name.AppImage'
+        # cp your_app_name.AppImage .
+      working-directory: ${{github.workspace}}/build # Run packaging from build directory
+      # This step heavily depends on how you configure your Linux deployment.
+      # You might use linuxdeployqt for AppImages, or simply tar up the necessary files.
+      # The `dist_linux.tar.gz` is a placeholder for your final artifact.
 
     - name: Upload Linux Release (Tag Push - Final Release)
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}/build/dist_linux.tar.gz
+          ${{github.workspace}}/build/dist_linux.tar.gz # Path to your packaged artifact
+          # Add other files like a .deb or .AppImage if you generate them
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -144,9 +162,10 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         name: "Development Build - ${{ github.sha }}"
-        tag_name: "dev-linux"
+        tag_name: "dev-linux" # Use a distinct tag for dev Linux builds
         files: |
-          ${{github.workspace}}/build/dist_linux.tar.gz
+          ${{github.workspace}}/build/dist_linux.tar.gz # Path to your packaged artifact
+          # Add other files like a .deb or .AppImage if you generate them
         draft: true
         prerelease: true
       env:
