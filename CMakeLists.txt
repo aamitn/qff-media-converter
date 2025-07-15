@@ -1,4 +1,4 @@
-set(PROJECT_VERSION 1.2.6)
+set(PROJECT_VERSION 1.2.8)
 
 # Informative message at the start of configuration
 message(STATUS "--- Configuring QFF Media Converter (v${PROJECT_VERSION}) ---")
