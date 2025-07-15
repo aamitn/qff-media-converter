@@ -122,6 +122,7 @@ jobs:
         cmake --build ${{github.workspace}}/build --target package 
         cpack -G DEB # Generate a Debian package
         cpack -G TGZ # Generate a tar.gz package
+        cpack -G RPM # Generate a Redhat package
         
       working-directory: ${{github.workspace}}/build # CPack usually runs from build directory
 
@@ -152,8 +153,9 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}/build/*.gz # Path to your packaged artifact
+          ${{github.workspace}}/build/qffgui-*.*.*-Linux.tar.gz
           ${{github.workspace}}/build/*.deb
+          ${{github.workspace}}/build/*.rpm
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -173,6 +175,7 @@ jobs:
         files: |
           ${{github.workspace}}/build/qffgui-*.*.*-Linux.tar.gz
           ${{github.workspace}}/build/*.deb
+          ${{github.workspace}}/build/*.rpm
         draft: true
         prerelease: true
       env:

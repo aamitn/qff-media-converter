@@ -10,9 +10,9 @@
 | **Release Type**    | **Link**                                                                                                                                                                                            |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Winget**          | **`winget install qffgui`**                                                                                                                                                                       |
-| **Github Release**  | [Installer Link](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) • [Zip Bundle Link](https://github.com/aamitn/winhider/releases/download/v0.8.15/Winhider.zip) |
-| **Microsoft Store** | [Store Link](https://www.xbox.com/en-IN/auth/msa?action=logIn&returnUrl=%2Fen-IN%2Fgames%2Fstore%2Fdoom-the-dark-ages%2F9ph9x0760b0t&prompt=none)                                                   |
-
+| **Windows**  | [Installer](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) • [Zip/Portable](https://github.com/aamitn/winhider/releases/download/v0.8.15/Winhider.zip) |
+| **Linux** | [RPM](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) • [DEB](https://github.com/aamitn/winhider/releases/download/v0.8.15/Winhider.zip)[Zip/Portable](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe)                                         |
+| **MacOS** | [DMG](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) • [Installer](https://github.com/aamitn/winhider/releases/download/v0.8.15/Winhider.zip)[Installer](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) |
 
 
 **QFF Media Converter** is a lightweight, Qt-based front-end application that simplifies media conversion tasks using the powerful FFmpeg engine. Developed by [Bitmutex Technologies](https://www.bitmutex.com), the tool provides an intuitive UI for converting audio, image  and video files from `any`-to-`any` format.
@@ -44,7 +44,7 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
 
 ### ⚙️ Prerequisites
 
-- Qt 6.x (Tested with Qt 6.9.1)
+- Qt 6.9.x (Tested with Qt 6.9.1)
 - CMake 3.16+
 - Python 3.8+ (auto-installed if not found)
 - Git (optional for CI/CD or updates from GitHub)
@@ -53,19 +53,66 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
 
 ### 🔨 Build Instructions
 
-#### Using CMake
-
-```bash
-mkdir build && cd build
-cmake ..
-cmake --build .
-```
+**Prerequisites** : [Downolod Qt](https://www.qt.io/download-qt-installer-oss)
 
 #### Using Qt Creator
 
 - Open `CMakeLists.txt` in Qt Creator.
 - Configure the kit and run the project.
 - Build and Run in IDE
+
+#### Using Windows
+- Configure
+  ```sh 
+  cmake -DCMAKE_PREFIX_PATH=C:\Qt\6.9.1\msvc2022_64 -S . -B .\build
+  ```
+
+- Build
+  ```sh 
+  cmake --build .\build
+  ```
+
+
+#### Using Linux
+- Install Dependencies
+  ```sh 
+  sudo apt install rpm 
+  ```
+
+- Configure (Change <username>)
+  ```sh 
+  cmake -DCMAKE_PREFIX_PATH=/home/<username>/Qt/6.9.1/gcc_64 -S . -B ./build
+  ```
+
+- Build
+  ```sh 
+  cmake --build ./build
+  ```
+  
+
+- Install
+  ```sh 
+  sudo cmake --install ./build
+  ```
+
+- Package (Method A)
+  ```sh 
+  cmake --build ./build --target package
+  ```
+  > Find packages under ./build/_Cpack_Packages/
+
+- Package (Method B)
+  ```sh 
+  cd build && cpack -G DEB && cpack -G TGZ && cpack -G RPM
+  ```
+  > Find packages under ./build/
+
+- Run App
+  ```sh 
+  qffgui
+  ```
+> Use :: `LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH qffgui` if you have startup errors
+
 
 
 ## 📦  FFmpeg Integration
