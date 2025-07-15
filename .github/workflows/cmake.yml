@@ -120,6 +120,9 @@ jobs:
       # cd ${{github.workspace}}/build && cpack -G DEB
       run: |
         cmake --build ${{github.workspace}}/build --target package 
+        cpack -G DEB # Generate a Debian package
+        cpack -G TGZ # Generate a tar.gz package
+        
       working-directory: ${{github.workspace}}/build # CPack usually runs from build directory
 
 
@@ -168,8 +171,8 @@ jobs:
         name: "Development Build - ${{ github.sha }}"
         tag_name: "dev" # Use a distinct tag for dev Linux builds
         files: |
-          ${{github.workspace}}/build/_CPack_Packages/Linux/TGZ/qffgui-*.*.*-Linux.tar.gz
-          ${{github.workspace}}/build/_CPack_Packages/Linux/DEB/*.deb
+          ${{github.workspace}}/build/qffgui-*.*.*-Linux.tar.gz
+          ${{github.workspace}}/build/*.deb
         draft: true
         prerelease: true
       env:
