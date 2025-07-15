@@ -10,6 +10,14 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QFile>
+#include <QTimer>
+
+
+void UpdateManager::showError(const QString &message, QWidget *parent) {
+    qWarning() << "Error:" << message;
+    QMessageBox::critical(parent, "Error", message);
+}
+
 
 UpdateManager::UpdateManager(QObject *parent)
     : QObject(parent),
@@ -21,12 +29,12 @@ UpdateManager::UpdateManager(QObject *parent)
     QCoreApplication::setApplicationVersion(APP_VERSION);
     currentAppVersion = QCoreApplication::applicationVersion();
     if (currentAppVersion.isEmpty()) {
-        qWarning() << "⚠️  QCoreApplication::applicationVersion() is empty. Please set it via CMake or .pro file.";
+        qWarning() << "QCoreApplication::applicationVersion() is empty. Please set it via CMake or .pro file.";
         currentAppVersion = "unknown";
     }
 
     // Show in debug output
-    qDebug() << "✅ App Version:" << currentAppVersion;
+    qDebug() << "App Version:" << currentAppVersion;
 
     // Show in a message box (if GUI app)
     // QMessageBox::information(nullptr, "App Version", "Current Version: " + currentAppVersion);
@@ -98,7 +106,9 @@ void UpdateManager::handleLatestReleaseReply() {
             emit updateCheckFinished(false, currentAppVersion); // No update
         }
     } else {
-        emit error(QString("Failed to check for updates: %1").arg(reply->errorString()));
+        QString err = QString("Failed to check for updates: %1").arg(reply->errorString());
+        emit error(err);
+        showError(err);
     }
     reply->deleteLater();
 }
@@ -111,7 +121,11 @@ void UpdateManager::downloadUpdate(const QString &url) {
 
     downloadFile = new QFile(updateFilePath);
     if (!downloadFile->open(QIODevice::WriteOnly)) {
-        emit error(QString("Could not open file for download: %1").arg(downloadFile->errorString()));
+
+        QString err = QString("Could not open file for download: %1").arg(downloadFile->errorString());
+        emit error(err);
+        showError(err);
+
         delete downloadFile;
         downloadFile = nullptr;
         return;
@@ -157,9 +171,11 @@ void UpdateManager::handleDownloadFinished() {
         emit updateDownloadFinished(true);
 
         // Important: Pass the path to the downloaded zip and the temp dir where it's located
-        initiateUpdateProcess(downloadFile->fileName(), tempUpdateDir->path());
+        initiateUpdateProcess();
     } else {
-        emit updateDownloadFinished(false, QString("Update download failed: %1").arg(downloadReply->errorString()));
+        QString err = QString("Update download failed: %1").arg(downloadReply->errorString());
+        emit updateDownloadFinished(false, err);
+        showError(err);
        // tempUpdateDir->remove(); // Clean up temp dir on failure
     }
 
@@ -171,16 +187,16 @@ void UpdateManager::handleDownloadFinished() {
     // or you can explicitly delete it after update process is initiated if it's no longer needed for cleanup by script
 }
 
-void UpdateManager::initiateUpdateProcess(const QString &zipFilePath, const QString &tempDirPath) {
+void UpdateManager::initiateUpdateProcess() {
     qDebug() << "Initiating update process...";
 
-    // Step 2: Prepare script and launch
-    QString appInstallDir = QCoreApplication::applicationDirPath();
 
 #ifdef Q_OS_WIN
-    QString updaterScriptPath = appInstallDir + "/update_helper.cmd";
+    QString scriptPath = QDir::current().absoluteFilePath("update_helper.py");
+    QString pythonExecutable = "python"; // Or use QStandardPaths to locate specific python
+
 #elif defined(Q_OS_UNIX)
-    QString updaterScriptPath = appInstallDir + "/update_helper.sh";
+    QString updaterScriptPath = QDir::current().absoluteFilePath("update_helper.sh");
     QFile scriptFile(updaterScriptPath);
     if (scriptFile.exists()) {
         scriptFile.setPermissions(scriptFile.permissions() | QFile::ExeUser | QFile::ExeGroup | QFile::ExeOther);
@@ -190,14 +206,26 @@ void UpdateManager::initiateUpdateProcess(const QString &zipFilePath, const QStr
     return;
 #endif
 
-    if (!QFile::exists(updaterScriptPath)) {
-        emit error("Updater script not found at: " + updaterScriptPath);
+
+    if (!QFile::exists(scriptPath)) {
+        QString err = "Updater script not found at: " + scriptPath;
+        emit error(err);
+        showError(err);
         return;
     }
 
-    qDebug() << "Launching updater without arguments:" << updaterScriptPath;
-    QProcess::startDetached(updaterScriptPath);
+    qDebug() << "Launching updater without arguments:" << scriptPath;
+       bool started = QProcess::startDetached(pythonExecutable, QStringList() << scriptPath);
+
+    if (!started) {
+        QString err = "Failed to launch update script: " + scriptPath;
+        emit error(err);
+        showError(err);
+        return;
+    }
 
     emit updateInitiated();
-    QCoreApplication::quit();
+
+    qApp->exit(0);
+
 }

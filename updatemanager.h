@@ -19,6 +19,7 @@ public:
     // Call this method to start checking for updates
     void checkForUpdates();
     void abortDownload();
+    static void showError(const QString &message, QWidget *parent = nullptr);
 
 signals:
     // Signals to communicate update status
@@ -28,6 +29,7 @@ signals:
     void updateInitiated();
     void error(const QString &message); // Generic error signal
 
+
 private slots:
     void handleLatestReleaseReply();
     void handleDownloadProgress(qint64 bytesReceived, qint64 bytesTotal);
@@ -36,7 +38,7 @@ private slots:
 
 private:
     void downloadUpdate(const QString &url);
-    void initiateUpdateProcess(const QString &zipFilePath, const QString &tempDirPath);
+    void initiateUpdateProcess();
 
     QNetworkAccessManager *networkManager;
     QNetworkReply *downloadReply;
@@ -52,5 +54,6 @@ private:
     // but we can pass it to the constructor or update it if needed.
     QString currentAppVersion;
 };
+
 
 #endif // UPDATEMANAGER_H

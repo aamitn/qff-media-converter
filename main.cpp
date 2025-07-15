@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ffmpegutils.h"
 #include "ffmpegstatusdialog.h"
+#include "pythoninstaller.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -8,6 +9,7 @@
 #include <QTranslator>
 #include <QThread>
 #include <QIcon>
+#include <QStandardPaths>
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +17,26 @@ int main(int argc, char *argv[])
 
     QCoreApplication::setApplicationName("QFF Media Converter");
     QCoreApplication::setOrganizationName("Bitmutex Technologies");
+
+    PythonInstaller pythonInstaller;
+    QString installerPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation) + "/" + PYTHON_INSTALLER_NAME;
+
+    if (!pythonInstaller.isPythonAvailable()) {
+        QMessageBox::information(nullptr, "Python Not Found", "Python not found. Downloading and installing...");
+
+        #ifdef Q_OS_WIN
+                if (!pythonInstaller.downloadInstaller(installerPath)) {
+                    QMessageBox::critical(nullptr, "Download Failed", "Could not download Python installer.");
+                    return -1;
+                }
+        #endif
+
+        if (!pythonInstaller.installSilently(installerPath)) {
+            QMessageBox::critical(nullptr, "Installation Failed", "Python installation failed.");
+            return -1;
+        }
+        QMessageBox::information(nullptr, "Python Installed", "Python installed successfully.");
+    }
 
     FfmpegStatusDialog dlg;
     dlg.setStatus("Checking for FFmpeg...");
@@ -29,7 +51,6 @@ int main(int argc, char *argv[])
             dlg.setStatus("Download failed: " + installError);
             QThread::sleep(2);
             dlg.close();
-            // Handle error...
         } else {
             dlg.setStatus("FFmpeg installed successfully!");
             QThread::sleep(2);
@@ -50,7 +71,6 @@ int main(int argc, char *argv[])
     }
 
     MainWindow window;
-    //window.setWindowIcon(QIcon("C:/Users/bigwiz/Pictures/6.png"));
     window.setWindowIcon(QIcon(":/icon/6.png"));
     window.setWindowTitle("QFF Media Converter");
     window.resize(500, 800);
