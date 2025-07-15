@@ -222,7 +222,8 @@ if(WIN32)
     set(_COPY_EXE_COMMENT "Copying built exe to release directory (Windows-specific)")
 else()
     # On non-Windows, define a no-op command (e.g., just echo a message)
-    set(_COPY_EXE_COMMAND "${CMAKE_COMMAND} -E echo \"Skipping Windows-specific exe copy on non-Windows.\"")
+    set(_COPY_EXE_COMMAND_TOOL ${CMAKE_COMMAND})
+    set(_COPY_EXE_COMMAND_ARGS -E echo "Skipping Windows-specific exe copy on non-Windows.")
     set(_COPY_EXE_COMMENT "Skipping Windows-specific exe copy")
 endif()
 
@@ -250,8 +251,15 @@ add_custom_command(TARGET qffgui POST_BUILD
 
 
    # Step 2: Copy built exe to release directory (This step is now conditional)
-   COMMAND ${_COPY_EXE_COMMAND} # Use the variable that holds the platform-specific command
-   COMMENT ${_COPY_EXE_COMMENT} # Use the variable for the comment
+   if(WIN32)
+       COMMAND ${_COPY_EXE_COMMAND} # On Windows, this holds the full command string
+       COMMENT ${_COPY_EXE_COMMENT}
+   else()
+       COMMAND ${_COPY_EXE_COMMAND_TOOL} # On non-Windows, this is just 'cmake'
+       ARGS    ${_COPY_EXE_COMMAND_ARGS} # And these are its arguments
+       COMMENT ${_COPY_EXE_COMMENT}
+   endif()
+
 
 
     # Step 3: Run windeployqt on the copied exe

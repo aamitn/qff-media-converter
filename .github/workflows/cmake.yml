@@ -102,10 +102,10 @@ jobs:
 
     - name: Configure CMake
       # For Linux, it's common to explicitly set the build type to Release for deployed artifacts
-      run: cmake -S . -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -S . -B ${{github.workspace}}/build 
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/build 
 
     - name: Run CPack (Optional -> If you want to create installers/packages)
       # This step assumes you have CPack configuration in your CMakeLists.txt
