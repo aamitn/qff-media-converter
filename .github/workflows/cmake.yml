@@ -167,6 +167,7 @@ jobs:
         files: |
           ${{github.workspace}}/build/dist_linux.tar.gz # Path to your packaged artifact
           # Add other files like a .deb or .AppImage if you generate them
+          ${{github.workspace}}/build/*.deb
         draft: true
         prerelease: true
       env:
