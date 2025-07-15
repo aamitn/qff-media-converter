@@ -16,7 +16,6 @@ env:
 jobs:
   # --- START OF NEW WINDOWS BUILD JOB ---
   build-win:
-    needs: build-linux # Ensure Windows build completes first, if needed
     runs-on: windows-latest
 
     steps:
@@ -75,6 +74,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # --- END OF NEW WINDOWS BUILD JOB ---
 
+    
   # --- START OF NEW LINUX BUILD JOB ---
   build-linux:
     runs-on: ubuntu-latest # Or debian-latest for more control
@@ -139,8 +139,6 @@ jobs:
         mkdir staged_app
         cp -r ./qffgui staged_app/ # Copy your executable
         # Use ldd to find runtime dependencies and copy them to staged_app if not static
-        # For Qt apps, you typically use linuxdeployqt or a similar tool for proper bundling
-        # If your build produces a self-contained folder:
         # cp -r your_built_app_folder staged_app/
         tar -czvf dist_linux.tar.gz -C . staged_app # Example: create a tar.gz of the staged app
       working-directory: ${{github.workspace}}/build # Run packaging from build directory
