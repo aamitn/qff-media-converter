@@ -210,21 +210,18 @@ void UpdateManager::handleDownloadFinished() {
 void UpdateManager::initiateUpdateProcess() {
     qDebug() << "Initiating update process...";
 
+    QString appInstallDir = QCoreApplication::applicationDirPath();
+    QString scriptPath;
+    QString pythonExecutable;
 
-#ifdef Q_OS_WIN
-    QString scriptPath = QDir::current().absoluteFilePath("update_helper.py");
-    QString pythonExecutable = "python"; // Or use QStandardPaths to locate specific python
 
-#elif defined(Q_OS_UNIX)
-    QString updaterScriptPath = QDir::current().absoluteFilePath("update_helper.sh");
-    QFile scriptFile(updaterScriptPath);
-    if (scriptFile.exists()) {
-        scriptFile.setPermissions(scriptFile.permissions() | QFile::ExeUser | QFile::ExeGroup | QFile::ExeOther);
-    }
-#else
-    emit error("Unsupported OS for update.");
-    return;
-#endif
+    #ifdef Q_OS_WIN
+        scriptPath = appInstallDir + "/update_helper.py";
+        pythonExecutable = "python"; // or full path if known
+    #elif defined(Q_OS_UNIX)
+        scriptPath = appInstallDir + "/update_helper.py";
+        pythonExecutable = "python3"; // default on Linux/macOS
+    #endif
 
 
     if (!QFile::exists(scriptPath)) {
