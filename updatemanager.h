@@ -53,6 +53,7 @@ private:
     // It's often set via CMake or .pro file, and accessed via QCoreApplication::applicationVersion()
     // but we can pass it to the constructor or update it if needed.
     QString currentAppVersion;
+    QString expectedZipName;
 };
 
 

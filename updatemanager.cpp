@@ -76,12 +76,32 @@ void UpdateManager::handleLatestReleaseReply() {
         QString latestVersionTag = release["tag_name"].toString(); // e.g., "v1.2.8"
         QString downloadUrl;
 
-        // Find the appropriate asset (e.g., a .zip file of your app)
+        #ifdef Q_OS_WIN
+                expectedZipName = "dist.zip";
+        #elif defined(Q_OS_LINUX)
+                expectedZipName = "dist_linux.zip";
+        #elif defined(Q_OS_MACOS)
+                expectedZipName = "dist_mac.zip";
+        #else
+                expectedZipName = "dist_unknown.zip";
+        #endif
+        // Set Assets
+
         QJsonArray assets = release["assets"].toArray();
         for (const QJsonValue &assetValue : assets) {
             QJsonObject asset = assetValue.toObject();
-            if (asset["name"].toString().endsWith(".zip", Qt::CaseInsensitive)) { // Adjust based on your asset name
+            QString assetName = asset["name"].toString();
+            if (assetName.compare(expectedZipName, Qt::CaseInsensitive) == 0) {
                 downloadUrl = asset["browser_download_url"].toString();
+
+                if (downloadUrl.isEmpty()) {
+                    QStringList availableAssets;
+                    for (const QJsonValue &assetValue : assets) {
+                        availableAssets << assetValue.toObject()["name"].toString();
+                    }
+                    qWarning() << "⚠️ No matching asset found for platform. Available assets:" << availableAssets;
+                }
+
                 break;
             }
         }

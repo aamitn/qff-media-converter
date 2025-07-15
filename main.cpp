@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     MainWindow window;
     window.setWindowIcon(QIcon(":/icon/6.png"));
     window.setWindowTitle("QFF Media Converter");
-    window.resize(500, 800);
+    window.resize(500, 870);
     window.show();
 
     return app.exec();

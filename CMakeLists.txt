@@ -1,4 +1,4 @@
-set(PROJECT_VERSION 1.2.8)
+set(PROJECT_VERSION 1.2.9)
 
 # Informative message at the start of configuration
 message(STATUS "--- Configuring QFF Media Converter (v${PROJECT_VERSION}) ---")
@@ -175,6 +175,17 @@ else()
 endif()
 
 
+# Create Zip distributable name based on platform
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist.zip")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist_linux.zip")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist_mac.zip")
+else()
+    set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist_unknown.zip")
+endif()
+
 # Add post-build commands
 
 #Generate Windows Distributable
@@ -213,8 +224,8 @@ add_custom_command(TARGET qffgui POST_BUILD
     COMMENT "Deploying with windeployqt and copying release contents to packages/com.bitmutex.qffgui/data"
 
     # Step 6: Create Zip distributable
-    COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${CMAKE_SOURCE_DIR}/dist.zip" --format=zip "${RELEASE_DIR}"
-    COMMENT "Creating ZIP archive dist.zip from ${RELEASE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${ZIP_NAME}" --format=zip "${RELEASE_DIR}"
+    COMMENT "Creating ZIP archive ${ZIP_NAME} from ${RELEASE_DIR}"
 
     # Step 7: Generate Windows Installer
     COMMAND "${BINARYCREATOR_EXE}"
