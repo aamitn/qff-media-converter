@@ -96,10 +96,8 @@ jobs:
         target: 'desktop'
         arch: 'gcc_64' # Common Linux GCC architecture
         modules: qtmultimedia
-        use-official: true # Use official Qt packages from the repository
         tools: 'tools_ifw' # If you plan to build Linux installers with IFW
-        install-deps: "true" # Installs Qt runtime dependencies
-        setup-python: true
+        setup-python: false
 
     - name: Configure CMake
       # For Linux, it's common to explicitly set the build type to Release for deployed artifacts
