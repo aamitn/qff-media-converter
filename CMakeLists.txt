@@ -1,4 +1,4 @@
-set(PROJECT_VERSION 1.2.10)
+set(PROJECT_VERSION 1.2.6)
 
 # Informative message at the start of configuration
 message(STATUS "--- Configuring QFF Media Converter (v${PROJECT_VERSION}) ---")
@@ -128,6 +128,7 @@ set_target_properties(qffgui PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+target_include_directories(qffgui PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/qffgui_includes/include)
 
 # Get path to QtCore binary to infer the Qt bin directory
 # Get location of QtCore to find Qt's root
@@ -141,24 +142,44 @@ get_filename_component(QT_ROOT_DIR "${QT_VERSION_DIR}" DIRECTORY)            # /
 set(IFW_VERSION "4.10")
 # --- Verify existence of required tools and directories ---
 
-# 1. Check for binarycreator.exe
-find_program(BINARYCREATOR_EXE_FOUND binarycreator PATHS "${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin" NO_DEFAULT_PATH)
-if(NOT BINARYCREATOR_EXE_FOUND)
-    message(STATUS "Error: binarycreator.exe not found. Expected at ${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin. Please check your Qt installation and IFW_VERSION (${IFW_VERSION}).")
-     set(BINARYCREATOR_EXE "binarycreator") # CI Override
+# 1. Check for binarycreator tool
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(BINARYCREATOR_BIN "binarycreator.exe")
 else()
-    set(BINARYCREATOR_EXE "${BINARYCREATOR_EXE_FOUND}") # Use the found path
-    message(STATUS "Found binarycreator.exe at: ${BINARYCREATOR_EXE}")
+    set(BINARYCREATOR_BIN "binarycreator")
+endif()
+
+find_program(BINARYCREATOR_EXE_FOUND ${BINARYCREATOR_BIN}
+    PATHS "${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin"
+    NO_DEFAULT_PATH
+)
+
+if(NOT BINARYCREATOR_EXE_FOUND)
+    message(WARNING "Error: ${BINARYCREATOR_BIN} not found. Expected at ${QT_ROOT_DIR}/Tools/QtInstallerFramework/${IFW_VERSION}/bin.")
+    set(BINARYCREATOR_EXE "${BINARYCREATOR_BIN}") # CI Override or fallback
+else()
+    set(BINARYCREATOR_EXE "${BINARYCREATOR_EXE_FOUND}")
+    message(STATUS "Found ${BINARYCREATOR_BIN} at: ${BINARYCREATOR_EXE}")
 endif()
 
 # 2. Check for windeployqt.exe
-find_program(WINDEPLOYQT_EXE_FOUND windeployqt PATHS "${QT_BIN_DIR}" NO_DEFAULT_PATH)
-if(NOT WINDEPLOYQT_EXE_FOUND)
-    message(FATAL_ERROR "Error: windeployqt.exe not found. Expected at ${QT_BIN_DIR}. Please ensure Qt development tools are correctly installed.")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    # 2. Check for windeployqt.exe
+    find_program(WINDEPLOYQT_EXE_FOUND windeployqt PATHS "${QT_BIN_DIR}" NO_DEFAULT_PATH)
+    if(NOT WINDEPLOYQT_EXE_FOUND)
+        message(FATAL_ERROR "Error: windeployqt.exe not found. Expected at ${QT_BIN_DIR}. Please ensure Qt development tools are correctly installed.")
+    else()
+        set(WINDEPLOYQT_EXE "${WINDEPLOYQT_EXE_FOUND}") # Use the found path
+        message(STATUS "Found windeployqt.exe at: ${WINDEPLOYQT_EXE}")
+    endif()
 else()
-    set(WINDEPLOYQT_EXE "${WINDEPLOYQT_EXE_FOUND}") # Use the found path
-    message(STATUS "Found windeployqt.exe at: ${WINDEPLOYQT_EXE}")
+    # On non-Windows systems (Linux, macOS), windeployqt.exe is not relevant.
+    # We can set the variable to an empty string or simply not set it.
+    # An empty string is often safer if other parts of your CMake might conditionally use this variable.
+    set(WINDEPLOYQT_EXE "")
+    message(STATUS "windeployqt.exe check skipped, as this is not a Windows system (${CMAKE_SYSTEM_NAME}).")
 endif()
+
 
 # 3. Set and check RELEASE_DIR (This is a build directory, CMake will create it)
 set(RELEASE_DIR "${CMAKE_CURRENT_BINARY_DIR}/dist")
@@ -186,6 +207,25 @@ else()
     set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist_unknown.zip")
 endif()
 
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+        set(INSTALLER_OUTPUT "${CMAKE_SOURCE_DIR}/qff_installer.exe")
+else()
+        set(INSTALLER_OUTPUT "${CMAKE_SOURCE_DIR}/qff_installer")
+endif()
+
+# Define variables for the conditional command based on the platform
+if(WIN32)
+    # On Windows, define the command to copy the executable with .exe extension
+    # REMOVE THE OUTER QUOTES HERE
+    set(_COPY_EXE_COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:qffgui>" "${RELEASE_DIR}/qffgui.exe")
+    set(_COPY_EXE_COMMENT "Copying built exe to release directory (Windows-specific)")
+else()
+    # On non-Windows, define a no-op command (e.g., just echo a message)
+    set(_COPY_EXE_COMMAND "${CMAKE_COMMAND} -E echo \"Skipping Windows-specific exe copy on non-Windows.\"")
+    set(_COPY_EXE_COMMENT "Skipping Windows-specific exe copy")
+endif()
+
 # Add post-build commands
 
 #Generate Windows Distributable
@@ -208,12 +248,20 @@ add_custom_command(TARGET qffgui POST_BUILD
        "${RELEASE_DIR}"
    COMMENT "Copying Python script to build output directory"
 
-    # Step 2: Copy built exe to release directory
-    COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:qffgui>" "${RELEASE_DIR}/qffgui.exe"
+
+   # Step 2: Copy built exe to release directory (This step is now conditional)
+   COMMAND ${_COPY_EXE_COMMAND} # Use the variable that holds the platform-specific command
+   COMMENT ${_COPY_EXE_COMMENT} # Use the variable for the comment
 
 
     # Step 3: Run windeployqt on the copied exe
-    COMMAND "${WINDEPLOYQT_EXE}" "${RELEASE_DIR}/qffgui.exe"
+        if(NOT "${WINDEPLOYQT_EXE}" STREQUAL "") # Only run if WINDEPLOYQT_EXE is not empty
+                COMMAND "${WINDEPLOYQT_EXE}" "${RELEASE_DIR}/qffgui.exe"
+                COMMENT "Running windeployqt on copied exe"
+        else()
+                COMMAND ${CMAKE_COMMAND} -E echo "windeployqt skipped: Not Windows or executable not found."
+                COMMENT "windeployqt skipped"
+        endif()
 
     # Step 4: Create destination directory in packages folder
     COMMAND ${CMAKE_COMMAND} -E make_directory "${PACKAGE_DATA_DIR}"1
@@ -227,12 +275,13 @@ add_custom_command(TARGET qffgui POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${ZIP_NAME}" --format=zip "${RELEASE_DIR}"
     COMMENT "Creating ZIP archive ${ZIP_NAME} from ${RELEASE_DIR}"
 
-    # Step 7: Generate Windows Installer
-    COMMAND "${BINARYCREATOR_EXE}"
-        -c "${CMAKE_SOURCE_DIR}/config/config.xml"
-        -p "${CMAKE_SOURCE_DIR}/packages"
-        "${CMAKE_SOURCE_DIR}/qff_installer.exe"
-    COMMENT "Creating installer using Qt Installer Framework from ${BINARYCREATOR_EXE}"
+
+        # Step 7: Generate Installer
+        COMMAND "${BINARYCREATOR_EXE}"
+                -c "${CMAKE_SOURCE_DIR}/config/config.xml"
+                -p "${CMAKE_SOURCE_DIR}/packages"
+                "${INSTALLER_OUTPUT}"
+        COMMENT "Creating installer using Qt Installer Framework from ${BINARYCREATOR_EXE}"
 
 )
 
@@ -243,6 +292,26 @@ install(TARGETS qffgui
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+# Generate the deployment script for the target MyApp.
+qt_generate_deploy_app_script(
+    TARGET qffgui
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+
+# Call the deployment script on "cmake --install".
+install(SCRIPT ${deploy_script})
+
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(qffgui)
 endif()
+
+set(CPACK_PACKAGE_NAME qffgui)
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "My amazing application")
+set(CPACK_PACKAGE_VENDOR "My Company")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
+set(CPACK_VERBATIM_VARIABLES ON)
+set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/qffgui")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Manfred Maintainer <mm@example.com>")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS libc6 libstdc++6 libgcc-s1)
+include(CPack)
