@@ -105,7 +105,7 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    - name: Run CPack (Optional: If you want to create installers/packages)
+    - name: Run CPack (Optional -> If you want to create installers/packages)
       # This step assumes you have CPack configuration in your CMakeLists.txt
       # and that your Linux build will produce a .deb, .rpm, .tar.gz or AppImage
       # For AppImage, you might need to install appimagetool or use a specific action.
