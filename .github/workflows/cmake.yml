@@ -158,6 +158,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Show BUILD dirs
+      run: |
+          echo "Current directory: $(pwd)"
+          echo "Contents of build directory:"
+          ls -la ${{github.workspace}}/build
+
     - name: Upload Linux Draft Release (Untagged Push)
       if: github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1
