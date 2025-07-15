@@ -104,14 +104,13 @@ jobs:
       # For Linux, it's common to explicitly set the build type to Release for deployed artifacts
       run: cmake -S . -B ${{github.workspace}}/build 
 
+
     - name: Build
       run: cmake --build ${{github.workspace}}/build 
 
     - name: Run CPack (Optional -> If you want to create installers/packages)
       # This step assumes you have CPack configuration in your CMakeLists.txt
       # and that your Linux build will produce a .deb, .rpm, .tar.gz or AppImage
-      # For AppImage, you might need to install appimagetool or use a specific action.
-      # Example for a simple .tar.gz or .deb if configured in CMake:
       run: cmake --build ${{github.workspace}}/build --target package
       working-directory: ${{github.workspace}}/build # CPack usually runs from build directory
 
@@ -134,7 +133,7 @@ jobs:
         # This is a placeholder; you'll need to detail your specific packaging steps.
         # For a simple example:
         mkdir staged_app
-        cp -r bin/your_app_executable staged_app/ # Copy your executable
+        cp -r ./qffgui staged_app/ # Copy your executable
         # Use ldd to find runtime dependencies and copy them to staged_app if not static
         # For Qt apps, you typically use linuxdeployqt or a similar tool for proper bundling
         # If your build produces a self-contained folder:
@@ -164,7 +163,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         name: "Development Build - ${{ github.sha }}"
-        tag_name: "dev-linux" # Use a distinct tag for dev Linux builds
+        tag_name: "dev" # Use a distinct tag for dev Linux builds
         files: |
           ${{github.workspace}}/build/dist_linux.tar.gz # Path to your packaged artifact
           # Add other files like a .deb or .AppImage if you generate them
