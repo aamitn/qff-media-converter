@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 env:
-  BUILD_TYPE: Debug
+  BUILD_TYPE: Release
 
 jobs:
   # --- START OF NEW WINDOWS BUILD JOB ---
@@ -98,7 +98,7 @@ jobs:
         arch: 'linux_gcc_64' # Common Linux GCC architecture
         modules: 'qtmultimedia'
         tools: 'tools_ifw' # If you plan to build Linux installers with IFW
-        setup-python: false
+        setup-python: true
 
     - name: Configure CMake
       # For Linux, it's common to explicitly set the build type to Release for deployed artifacts
