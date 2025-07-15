@@ -111,7 +111,10 @@ jobs:
     - name: Run CPack (Optional -> If you want to create installers/packages)
       # This step assumes you have CPack configuration in your CMakeLists.txt
       # and that your Linux build will produce a .deb, .rpm, .tar.gz or AppImage
-      run: cmake --build ${{github.workspace}}/build --target package
+      run: |
+        cmake --build ${{github.workspace}}/build --target package
+        cd ${{github.workspace}}/build && cpack -G DEB
+
       working-directory: ${{github.workspace}}/build # CPack usually runs from build directory
 
     - name: Test
