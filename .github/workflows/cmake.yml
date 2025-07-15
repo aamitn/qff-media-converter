@@ -76,6 +76,7 @@ jobs:
 
   # --- START OF NEW LINUX BUILD JOB ---
   build-linux:
+    needs: build-win # Ensure Windows build completes first, if needed
     runs-on: ubuntu-latest # Or debian-latest for more control
 
     steps:
