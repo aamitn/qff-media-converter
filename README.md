@@ -15,7 +15,7 @@
 
 
 
-**QFF Media Converter** is a lightweight, Qt-based front-end application that simplifies media conversion tasks using the powerful FFmpeg engine. Developed by [Bitmutex Technologies](https://www.bitmutex.com), the tool provides an intuitive UI for converting audio and video files, visualizing waveforms, and managing FFmpeg updates with minimal user intervention.
+**QFF Media Converter** is a lightweight, Qt-based front-end application that simplifies media conversion tasks using the powerful FFmpeg engine. Developed by [Bitmutex Technologies](https://www.bitmutex.com), the tool provides an intuitive UI for converting audio, image  and video files from `any`-to-`any` format.
 
 Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-converter`](https://github.com/aamitn/qff-media-converter)
 [![GH Pages Deploy](https://github.com/aamitn/winhider-website/actions/workflows/astro.yml/badge.svg)](https://github.com/aamitn/winhider-website/actions/workflows/astro.yml)
@@ -29,7 +29,7 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
 
 ## 🚀 Features
 
-- 🎞️ Convert audio and video files using FFmpeg
+- 🎞️ Convert audio and video and image files from `any`-to-`any` formats using FFmpeg
 - 📈 Visualize audio waveforms in real-time
 - 🔄 Integrated auto-updater with support for GitHub releases
 - 📦 FFmpeg auto-download and installation
@@ -37,11 +37,6 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
 - 🪟 Cross-platform (Windows & Linux), with dynamic script handling
 - 🌍 Internationalization support via `.ts` translation files
 - 🧰 Minimal external dependencies (uses system libraries only)
-
----
-
-## 🧩 Project Structure
-
 
 ---
 
