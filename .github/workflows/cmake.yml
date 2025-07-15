@@ -108,18 +108,20 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build 
 
-    - name: Run CPack (Optional -> If you want to create installers/packages)
-      # This step assumes you have CPack configuration in your CMakeLists.txt
-      # and that your Linux build will produce a .deb, .rpm, .tar.gz or AppImage
-      run: |
-        cmake --build ${{github.workspace}}/build --target package
-        cd ${{github.workspace}}/build && cpack -G DEB
-
-      working-directory: ${{github.workspace}}/build # CPack usually runs from build directory
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}
+
+
+    - name: Run CPack (Optional -> If you want to create installers/packages)
+      # This step assumes you have CPack configuration in your CMakeLists.txt
+      # and that your Linux build will produce a .deb, .rpm, .tar.gz or AppImage
+      # cd ${{github.workspace}}/build && cpack -G DEB
+      run: |
+        cmake --build ${{github.workspace}}/build --target package 
+      working-directory: ${{github.workspace}}/build # CPack usually runs from build directory
+
 
     # Optional: Packaging the application for distribution (e.g., AppImage, tar.gz)
     # This will depend on your CMake setup for packaging.
@@ -129,12 +131,7 @@ jobs:
       # You need to adjust 'your_app_name' and the path.
       run: |
         # Use linuxdeploy or appimagetool if you want to create an AppImage
-        # For a simple tar.gz:
         cd ${{github.workspace}}/build
-        # Assume your application is built into a directory like 'build/your_app_name_dir'
-        # You'll likely need to use windeployqt/macdeployqt/linuxdeployqt equivalent or manual packaging here.
-        # This is a placeholder; you'll need to detail your specific packaging steps.
-        # For a simple example:
         mkdir staged_app
         cp -r ./qffgui staged_app/ # Copy your executable
         # Use ldd to find runtime dependencies and copy them to staged_app if not static
@@ -142,9 +139,6 @@ jobs:
         # If your build produces a self-contained folder:
         # cp -r your_built_app_folder staged_app/
         tar -czvf dist_linux.tar.gz -C . staged_app # Example: create a tar.gz of the staged app
-        # If you used CPack, the package might already be in the build directory, e.g., .deb, .rpm
-        # For example, if CPack creates an AppImage named 'your_app_name.AppImage'
-        # cp your_app_name.AppImage .
       working-directory: ${{github.workspace}}/build # Run packaging from build directory
       # This step heavily depends on how you configure your Linux deployment.
       # You might use linuxdeployqt for AppImages, or simply tar up the necessary files.
@@ -155,7 +149,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}/build/dist_linux.tar.gz # Path to your packaged artifact
+          ${{github.workspace}}/build/*.gz # Path to your packaged artifact
           ${{github.workspace}}/build/*.deb
         draft: false
       env:
@@ -174,8 +168,8 @@ jobs:
         name: "Development Build - ${{ github.sha }}"
         tag_name: "dev" # Use a distinct tag for dev Linux builds
         files: |
-          ${{github.workspace}}/build/*.tar.gz # Path to your packaged artifact
-          ${{github.workspace}}/build/*.deb
+          ${{github.workspace}}/build/_CPack_Packages/Linux/TGZ/qffgui-*.*.*-Linux.tar.gz
+          ${{github.workspace}}/build/_CPack_Packages/Linux/DEB/*.deb
         draft: true
         prerelease: true
       env:
