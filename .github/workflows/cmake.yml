@@ -47,13 +47,13 @@ jobs:
 
     - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
-        macdeployqt qffgui.app -qmldir="${{github.workspace}}/" -verbose=2
+        macdeployqt qffgui.app -dmg -qmldir="${{github.workspace}}/" -verbose=2
+        cpack -G PKG
       working-directory: ${{github.workspace}}/build
       
     - run : |
          ls -la ${{github.workspace}}/build
-         ls -la ${{github.workspace}}/build/qffgui.app
-         ls -laR ${{github.workspace}}/build/qffgui.app # Recursive listing
+
 
     - name: Upload Release (Tag Push - Final Release)
       if: startsWith(github.ref, 'refs/tags/')
