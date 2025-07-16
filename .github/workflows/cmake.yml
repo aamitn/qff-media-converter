@@ -72,8 +72,8 @@ jobs:
         name: "Development Build - ${{ github.sha }}"
         tag_name: "dev"
         files: |
-          ${{github.workspace}}/build/qffgui-*.*.*-win64.zip
-          ${{github.workspace}}/build/qffgui-*.*.*-win64.exe
+          ${{github.workspace}}/build/*.zip
+          ${{github.workspace}}/build/*.exe
         draft: true
         prerelease: true
       env:
