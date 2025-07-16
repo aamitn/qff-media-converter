@@ -42,7 +42,7 @@ jobs:
       run: cmake -S . -B ${{github.workspace}}/build 
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config Build
+      run: cmake --build ${{github.workspace}}/build --config Release
 
     - name: Test
       working-directory: ${{github.workspace}}/build
