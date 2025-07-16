@@ -212,12 +212,12 @@ jobs:
     - name: Deploy macOS Application (using macdeployqt)
       run: |
         ls -la
-        macdeployqt ${{github.workspace}}/build/qffgui -qmldir="${{github.workspace}}/"
+        macdeployqt ${{github.workspace}}/build/qffgui.app -qmldir="${{github.workspace}}/"
       working-directory: ${{github.workspace}}/build
 
     - name: Create macOS DMG
       run: |
-        APP_NAME="qffgui.app" # Replace with your actual app name (e.g., "qffgui")
+        APP_NAME="qffgui" # Replace with your actual app name (e.g., "qffgui")
         DMG_NAME="${APP_NAME}-Installer.dmg" # Name of the output DMG file
         APP_PATH="${{github.workspace}}/build/${APP_NAME}.app"
         DMG_PATH="${{github.workspace}}/build/${DMG_NAME}"
