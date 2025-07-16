@@ -139,7 +139,8 @@ cd qff-media-converter
 
 - Generate DMG
   ```sh
-  /home/<username>/Qt/6.9.1/gcc_64/in/macdeployqt ./build/qffgui.app -dmg -qmldir="./"
+
+  /home/<username>/Qt/6.9.1/macos/bin/macdeployqt/macdeployqt ./build/qffgui.app -dmg -qmldir="./"
   ```
 > Generates app,dmg
 
