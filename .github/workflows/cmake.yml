@@ -225,6 +225,7 @@ jobs:
     - name: Upload Draft Release (Untagged Push)
       if: github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v1
+      run : ls -la ${{github.workspace}}/build
       with:
         name: "Development Build - ${{ github.sha }}"
         tag_name: "dev"
