@@ -222,7 +222,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
-    - run : ls -la ${{github.workspace}}/build
+    - run : |
+         ls -la ${{github.workspace}}/build/dist
+         ls -la ${{github.workspace}}/build
+         ls -la ${{github.workspace}}
     
     - name: Upload Draft Release (Untagged Push)
       if: github.ref == 'refs/heads/main'
