@@ -3,6 +3,25 @@ name: CMake Deploy
 on:
   push:
     branches: [ "main" ]
+    tags: [ "*" ]   
+  pull_request: 
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+
+  
+
+name: CMake Deploy
+
+on:
+  push:
+    branches: [ "main" ]
     tags: [ "*" ]    
   pull_request:  
     branches: [ "main" ]
@@ -45,55 +64,61 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}
       
-    # IMPORTANT: The macdeployqt path export needs to happen before macdeployqt is used
-    # This ensures macdeployqt is found in the PATH for subsequent steps
     - name: Export Qt Binaries to PATH
       run: |
         QT_BIN_DIR=$(find $(echo $QT_ROOT_DIR) -name "bin" -type d)
         echo "QT_BIN_DIR: $QT_BIN_DIR"
-        echo "PATH=$QT_BIN_DIR:$PATH" >> $GITHUB_ENV # Add to environment for subsequent steps
+        echo "PATH=$QT_BIN_DIR:$PATH" >> $GITHUB_ENV
 
-    - name: Copy .app bundle for separate upload
-      # Do this BEFORE macdeployqt -dmg runs on the original .app
+    - name: Copy .app bundle for separate upload (using rsync for robustness)
       run: |
+        APP_SOURCE_PATH="${{github.workspace}}/build/qffgui.app"
+        APP_BUNDLE_PATH="${{github.workspace}}/build/qffgui_bundle.app"
+
         echo "Contents of ${{github.workspace}}/build/ before copying:"
-        ls -la ${{github.workspace}}/build/
+        ls -la "${{github.workspace}}/build/"
         
         # Ensure the source .app exists before copying
-        if [ -d "${{github.workspace}}/build/qffgui.app" ]; then
-          cp -r "${{github.workspace}}/build/qffgui.app" "${{github.workspace}}/build/qffgui_bundle.app"
-          echo "Copied qffgui.app to qffgui_bundle.app"
-        else
-          echo "Error: qffgui.app not found at ${{github.workspace}}/build/qffgui.app"
+        if [ ! -d "${APP_SOURCE_PATH}" ]; then
+          echo "Error: qffgui.app not found at ${APP_SOURCE_PATH}. Cannot create bundle copy."
           exit 1
         fi
         
+        # Use rsync for a more robust recursive copy, ensuring independent files
+        # -a: archive mode (preserves permissions, timestamps, etc.)
+        # -v: verbose
+        rsync -av "${APP_SOURCE_PATH}/" "${APP_BUNDLE_PATH}"
+        
+        echo "Copied ${APP_SOURCE_PATH} to ${APP_BUNDLE_PATH}"
+        
         echo "Contents of ${{github.workspace}}/build/ after copying:"
-        ls -la ${{github.workspace}}/build/
+        ls -la "${{github.workspace}}/build/"
 
     - name: Deploy macOS Application (generate dmg using macdeployqt)
-      # This step should operate on the ORIGINAL qffgui.app and consume it
       run: |
         echo "Contents of ${{github.workspace}}/build/ before macdeployqt -dmg:"
-        ls -la ${{github.workspace}}/build/
+        ls -la "${{github.workspace}}/build/"
         
         # Run macdeployqt on the original .app, which will then create the DMG and remove the original .app
         macdeployqt "${{github.workspace}}/build/qffgui.app" -dmg -qmldir="${{github.workspace}}/"
         
         echo "Contents of ${{github.workspace}}/build/ after macdeployqt -dmg:"
-        ls -la ${{github.workspace}}/build/ # qffgui.app should be gone, qffgui_bundle.app should remain
+        ls -la "${{github.workspace}}/build/" # qffgui.app should be gone, qffgui_bundle.app should remain
 
-    - name: Verify files before upload
+    - name: Verify files before upload (corrected checks)
       run: |
         echo "Final check of files in build directory before upload:"
         ls -la ${{github.workspace}}/build/
         
-        if [ -f "${{github.workspace}}/build/*.dmg" ]; then
-          echo "DMG file found."
+        # Correct check for DMG: use find or glob
+        DMG_COUNT=$(find ${{github.workspace}}/build/ -maxdepth 1 -name "*.dmg" | wc -l | tr -d '[:space:]')
+        if [ "$DMG_COUNT" -gt 0 ]; then
+          echo "DMG file(s) found: $DMG_COUNT"
         else
           echo "DMG file NOT found."
         fi
         
+        # Correct check for .app bundle
         if [ -d "${{github.workspace}}/build/qffgui_bundle.app" ]; then
           echo "qffgui_bundle.app found."
         else
