@@ -281,7 +281,7 @@ jobs:
           ${{github.workspace}}/build/*.dmg
           ${{github.workspace}}/build/*.zip
         draft: true
-        prerelease: true
+        prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # --- END OF NEW MACOS BUILD JOB ---
