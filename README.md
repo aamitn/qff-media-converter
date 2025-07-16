@@ -55,6 +55,8 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
 
 **Prerequisites** :
 - [Download Qt](https://www.qt.io/download-qt-installer-oss)
+  - Modules : [qtmultimedia](https://doc.qt.io/qt-6/qtmultimedia-index.html)
+  - Tools : [tools_ifw - Qt Installer Framework](https://doc.qt.io/qtinstallerframework/ifw-tools.html)
 - [Download FFMpeg](https://github.com/btbn/ffmpeg-builds/releases) - [Alternate Link](https://www.gyan.dev/ffmpeg/builds)
 
 **Clone Repo** 
@@ -144,6 +146,26 @@ cd qff-media-converter
   ```
 > Generates app,dmg
 
+## Cpack Generators
+```
+  7Z                           = 7-Zip file format
+  Bundle                       = Mac OSX bundle
+  DragNDrop                    = Mac OSX Drag And Drop
+  External                     = CPack External packages
+  IFW                          = Qt Installer Framework
+  INNOSETUP                    = Inno Setup packages
+  NSIS                         = Null Soft Installer
+  NSIS64                       = Null Soft Installer (64-bit)
+  NuGet                        = NuGet packages
+  STGZ                         = Self extracting Tar GZip compression
+  TBZ2                         = Tar BZip2 compression
+  TGZ                          = Tar GZip compression
+  TXZ                          = Tar XZ compression
+  TZ                           = Tar Compress compression
+  TZST                         = Tar Zstandard compression
+  ZIP                          = ZIP file format
+  productbuild                 = Mac OSX pkg
+```
 
 ## 📦  FFmpeg Integration
 

@@ -198,36 +198,6 @@ else()
 endif()
 
 
-# Create Zip distributable name based on platform
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist.zip")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist_linux.zip")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist_mac.zip")
-else()
-    set(ZIP_NAME "${CMAKE_SOURCE_DIR}/dist_unknown.zip")
-endif()
-
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-        set(INSTALLER_OUTPUT "${CMAKE_SOURCE_DIR}/qff_installer.exe")
-else()
-        set(INSTALLER_OUTPUT "${CMAKE_SOURCE_DIR}/qff_installer")
-endif()
-
-# Define variables for the conditional command based on the platform
-if(WIN32)
-    # On Windows, define the command to copy the executable with .exe extension
-    # REMOVE THE OUTER QUOTES HERE
-    set(_COPY_EXE_COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:qffgui>" "${RELEASE_DIR}/qffgui.exe")
-    set(_COPY_EXE_COMMENT "Copying built exe to release directory (Windows-specific)")
-else()
-    # On non-Windows, define a no-op command (e.g., just echo a message)
-    set(_COPY_EXE_COMMAND_TOOL ${CMAKE_COMMAND})
-    set(_COPY_EXE_COMMAND_ARGS -E echo "Skipping Windows-specific exe copy on non-Windows.")
-    set(_COPY_EXE_COMMENT "Skipping Windows-specific exe copy")
-endif()
 
 # Add post-build commands
 
@@ -252,27 +222,6 @@ add_custom_command(TARGET qffgui POST_BUILD
    COMMENT "Copying Python script to build output directory"
 
 
-   # Step 2: Copy built exe to release directory (This step is now conditional)
-   if(WIN32)
-       COMMAND ${_COPY_EXE_COMMAND} # On Windows, this holds the full command string
-       COMMENT ${_COPY_EXE_COMMENT}
-   else()
-       COMMAND ${_COPY_EXE_COMMAND_TOOL} # On non-Windows, this is just 'cmake'
-       ARGS    ${_COPY_EXE_COMMAND_ARGS} # And these are its arguments
-       COMMENT ${_COPY_EXE_COMMENT}
-   endif()
-
-
-
-    # Step 3: Run windeployqt on the copied exe
-        if(NOT "${WINDEPLOYQT_EXE}" STREQUAL "") # Only run if WINDEPLOYQT_EXE is not empty
-                COMMAND "${WINDEPLOYQT_EXE}" "${RELEASE_DIR}/qffgui.exe"
-                COMMENT "Running windeployqt on copied exe"
-        else()
-                COMMAND ${CMAKE_COMMAND} -E echo "windeployqt skipped: Not Windows or executable not found."
-                COMMENT "windeployqt skipped"
-        endif()
-
     # Step 4: Create destination directory in packages folder
     COMMAND ${CMAKE_COMMAND} -E make_directory "${PACKAGE_DATA_DIR}"1
 
@@ -281,17 +230,6 @@ add_custom_command(TARGET qffgui POST_BUILD
 
     COMMENT "Deploying with windeployqt and copying release contents to packages/com.bitmutex.qffgui/data"
 
-    # Step 6: Create Zip distributable
-    COMMAND ${CMAKE_COMMAND} -E tar "cfv" "${ZIP_NAME}" --format=zip "${RELEASE_DIR}"
-    COMMENT "Creating ZIP archive ${ZIP_NAME} from ${RELEASE_DIR}"
-
-
-        # Step 7: Generate Installer
-        COMMAND "${BINARYCREATOR_EXE}"
-                -c "${CMAKE_SOURCE_DIR}/config/config.xml"
-                -p "${CMAKE_SOURCE_DIR}/packages"
-                "${INSTALLER_OUTPUT}"
-        COMMENT "Creating installer using Qt Installer Framework from ${BINARYCREATOR_EXE}"
 
 )
 
@@ -317,11 +255,11 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 set(CPACK_PACKAGE_NAME qffgui)
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "My amazing application")
-set(CPACK_PACKAGE_VENDOR "My Company")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "QFF Media Converter")
+set(CPACK_PACKAGE_VENDOR "Bitmutex Technologies")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
 set(CPACK_VERBATIM_VARIABLES ON)
 set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/qffgui")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Manfred Maintainer <mm@example.com>")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Amit Nandi <amitbitmutex.com>")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS libc6 libstdc++6 libgcc-s1)
 include(CPack)
