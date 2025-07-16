@@ -1,4 +1,4 @@
-# QFF Media Converter
+# QFF Media Converter - Convert Media Files from  **`any`**  to **`any`**  Format
 
 <img src=".\icon\6.png" alt="QFF Logo" width="200" align="left"/>
 
@@ -6,16 +6,16 @@
 [![License](https://img.shields.io/github/license/aamitn/qff-media-converter)](./LICENSE)
 [![Version](https://img.shields.io/github/v/release/aamitn/qff-media-converter)](https://github.com/aamitn/Winhider/releases/)
 
+[**_Latest Releases_**](https://github.com/aamitn/qff-media-converter/releases/latest)
 
-| **Release Type**    | **Link**                                                                                                                                                                                            |
+| **Platforms**    | **Link**                                                                                                                                                                                            |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Winget**          | **`winget install qffgui`**                                                                                                                                                                       |
-| **Windows**  | [Installer](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) • [Zip/Portable](https://github.com/aamitn/winhider/releases/download/v0.8.15/Winhider.zip) |
-| **Linux** | [RPM](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) • [DEB](https://github.com/aamitn/winhider/releases/download/v0.8.15/Winhider.zip)[Zip/Portable](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe)                                         |
-| **MacOS** | [DMG](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) • [Installer](https://github.com/aamitn/winhider/releases/download/v0.8.15/Winhider.zip)[Installer](https://github.com/aamitn/winhider/releases/download/v0.8.15/WinhiderInstaller.exe) |
+**Windows**  | [Installer/EXE](https://github.com/aamitn/qff-media-converter/releases/latest/download/qff_installer.exe) • [Zip/Portable](https://github.com/aamitn/qff-media-converter/releases/latest/download/dist.zip) |
+| **Linux** | [RPM](hhttps://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.rpm) • [DEB](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.deb) • [.TAR.GZ](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.tar.gz)                                         |
+| **MacOS** | [App](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui.app) • [DMG](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui.dmg) |
 
 
-**QFF Media Converter** is a lightweight, Qt-based front-end application that simplifies media conversion tasks using the powerful FFmpeg engine. Developed by [Bitmutex Technologies](https://www.bitmutex.com), the tool provides an intuitive UI for converting audio, image  and video files from `any`-to-`any` format.
+**QFF Media Converter** is a lightweight, Qt-based front-end application that simplifies media conversion tasks using the powerful FFmpeg engine. Developed by [Bitmutex Technologies](https://www.bitmutex.com), the tool provides an intuitive UI for converting audio, image  and video files from  _**`any`**_  to _**`any`**_  formats.
 
 Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-converter`](https://github.com/aamitn/qff-media-converter)
 [![GH Pages Deploy](https://github.com/aamitn/winhider-website/actions/workflows/astro.yml/badge.svg)](https://github.com/aamitn/winhider-website/actions/workflows/astro.yml)
@@ -53,7 +53,15 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
 
 ### 🔨 Build Instructions
 
-**Prerequisites** : [Downolod Qt](https://www.qt.io/download-qt-installer-oss)
+**Prerequisites** :
+- [Download Qt](https://www.qt.io/download-qt-installer-oss)
+- [Download FFMpeg](https://github.com/btbn/ffmpeg-builds/releases) - [Alternate Link](https://www.gyan.dev/ffmpeg/builds)
+
+**Clone Repo** 
+```sh
+git clone https://github.com/aamitn/qff-media-converter
+cd qff-media-converter
+```
 
 #### Using Qt Creator
 
@@ -61,7 +69,10 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
 - Configure the kit and run the project.
 - Build and Run in IDE
 
-#### Using Windows
+
+#### Manual Builds - For Windows, Linux and MacOS
+
+#### Windows
 - Configure
   ```sh 
   cmake -DCMAKE_PREFIX_PATH=C:\Qt\6.9.1\msvc2022_64 -S . -B .\build
@@ -71,9 +82,9 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
   ```sh 
   cmake --build .\build
   ```
+> Generates protab/zip, installer/exe
 
-
-#### Using Linux
+#### Linux
 - Install Dependencies
   ```sh 
   sudo apt install rpm 
@@ -113,6 +124,24 @@ Website Repo for docs and landing : [`https://github.com/aamitn/qff-media-conver
   ```
 > Use :: `LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH qffgui` if you have startup errors
 
+> Generates tar.gz,deb,rpm
+
+#### MacOs
+- Configure
+  ```sh 
+  cmake -DCMAKE_PREFIX_PATH=/home/<username>/Qt/6.9.1/gcc_64 -S . -B ./build
+  ```
+
+- Build
+  ```sh 
+    cmake --build ./build
+  ```
+
+- Generate DMG
+  ```sh
+  /home/<username>/Qt/6.9.1/gcc_64/in/macdeployqt ./build/qffgui.app -dmg -qmldir="./"
+  ```
+> Generates app,dmg
 
 
 ## 📦  FFmpeg Integration

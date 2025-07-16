@@ -209,9 +209,10 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}
 
-    - name: Deploy macOS Application (using macdeployqt)
+    - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
         ls -la
+        which macdeployqt
         macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
         ls -la
       working-directory: ${{github.workspace}}/build
@@ -235,6 +236,7 @@ jobs:
         tag_name: "dev"
         files: |
           ${{github.workspace}}/build/*.dmg
+          ${{github.workspace}}/build/*.app
         draft: true
         prerelease: true
       env:
