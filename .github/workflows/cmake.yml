@@ -59,8 +59,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}\build\*.zip
-          ${{github.workspace}}\build\*.exe
+          ./build/*.zip
+          ./build/*.exe
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
