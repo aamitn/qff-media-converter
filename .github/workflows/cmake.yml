@@ -49,7 +49,7 @@ jobs:
       run: |
         ls -la
         macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
-        macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
+        macdeployqt ${{github.workspace}}/build/qffgui.app -qmldir="${{github.workspace}}/"
         ls -la
       working-directory: ${{github.workspace}}/build
 
