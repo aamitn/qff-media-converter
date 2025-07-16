@@ -59,8 +59,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}/build/*.zip
-          ${{github.workspace}}/build/*.exe
+          ${{github.workspace}}\build\*.zip
+          ${{github.workspace}}\build\*.exe
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,8 +72,8 @@ jobs:
         name: "Development Build - ${{ github.sha }}"
         tag_name: "dev"
         files: |
-          ${{github.workspace}}/build/*.zip
-          ${{github.workspace}}/build/*.exe
+          ${{github.workspace}}\build\*.zip
+          ${{github.workspace}}\build\*.exe
         draft: true
         prerelease: true
       env:
