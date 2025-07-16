@@ -1,6 +1,6 @@
 # QFF Media Converter - Convert Media Files from  **`any`**  to **`any`**  Format
 
-<img src=".\icon\6.png" alt="QFF Logo" width="200" align="left"/>
+<img src="./icon/6.png" alt="QFF Logo" width="200" align="left"/>
 
 [![Build App](https://github.com/aamitn/qff-media-converter/actions/workflows/cmake.yml/badge.svg)](https://github.com/aamitn/qff-media-converter/actions/workflows/cmake.yml)
 [![License](https://img.shields.io/github/license/aamitn/qff-media-converter)](./LICENSE)
@@ -10,9 +10,9 @@
 
 | **Platforms**    | **Link**                                                                                                                                                                                            |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-**Windows**  | [Installer/EXE](https://github.com/aamitn/qff-media-converter/releases/latest/download/qff_installer.exe) • [Zip/Portable](https://github.com/aamitn/qff-media-converter/releases/latest/download/dist.zip) |
-| **Linux** | [RPM](hhttps://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.rpm) • [DEB](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.deb) • [.TAR.GZ](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.tar.gz)                                         |
-| **MacOS** | [App](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-macos.zip ) • [DMG](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui.dmg) |
+**Windows**  | [Installer/EXE](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-win64.exe) • [Zip/Portable](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-win64.zip) |
+| **Linux** | [RPM](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.14-Linux.rpm) • [DEB](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.14-Linux.deb) • [TAR.GZ](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.14-Linux.tar.gz) |
+| **MacOS** | [App](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-v1.2.14-macos.zip) • [DMG](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-v1.2.14-macos.dmg) |
 
 
 **QFF Media Converter** is a lightweight, Qt-based front-end application that simplifies media conversion tasks using the powerful FFmpeg engine. Developed by [Bitmutex Technologies](https://www.bitmutex.com), the tool provides an intuitive UI for converting audio, image  and video files from  _**`any`**_  to _**`any`**_  formats.
