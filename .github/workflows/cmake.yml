@@ -209,17 +209,23 @@ jobs:
       run: cmake -S . -B ${{github.workspace}}/build 
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build 
+      run: cmake --build ${{github.workspace}}/build --config Release
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}}
+
+      
+    - name: Package
+      working-directory: ${{github.workspace}}/build
+      run: cpack -G DragNDrop && cpack -G ZIP && cpack -G Bundle && cpack -G productbuild
 
     - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
         ls -la
         which macdeployqt
         macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
+        mv ${{github.workspace}}/build/qffgui.dmg ${{github.workspace}}/build/QFFMediaConverter-${{ env.VERSION }}-mac.dmg
         ls -la
       working-directory: ${{github.workspace}}/build
 
@@ -236,9 +242,6 @@ jobs:
         fi
 
         # Create the zip archive. The -r flag is for recursive.
-        # The syntax "zip -r destination.zip source_dir/" is common.
-        # Using -X to exclude .DS_Store and __MACOSX (resource fork metadata)
-        # Using -q for quiet output
         zip -r -X -q "${ZIP_FILE_NAME}" "${APP_BUNDLE_DIR}"
         
         echo "Created ${ZIP_FILE_NAME}"

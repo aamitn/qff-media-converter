@@ -84,6 +84,11 @@ cd qff-media-converter
   ```sh 
   cmake --build .\build
   ```
+- Package
+  ```sh 
+  cd build && cpack -G ZIP && cpack -G INNOSETUP
+  ```
+
 > Generates protab/zip, installer/exe
 
 #### Linux
