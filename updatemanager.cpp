@@ -74,14 +74,17 @@ void UpdateManager::handleLatestReleaseReply() {
         QJsonObject release = jsonDoc.object();
 
         QString latestVersionTag = release["tag_name"].toString(); // e.g., "v1.2.8"
+        QString versionNumber = latestVersionTag;
+        if (versionNumber.startsWith('v'))
+            versionNumber = versionNumber.mid(1); // remove 'v' prefix
         QString downloadUrl;
 
         #ifdef Q_OS_WIN
-                expectedZipName = "dist.zip";
+                expectedZipName = QString("QFFMediaConverter-%1-win64.exe").arg(versionNumber);
+        #elif defined(Q_OS_MAC)
+                expectedZipName = QString("QFFMediaConverter-%1-mac.dmg").arg(versionNumber);
         #elif defined(Q_OS_LINUX)
-                expectedZipName = "dist_linux.zip";
-        #elif defined(Q_OS_MACOS)
-                expectedZipName = "dist_mac.zip";
+                expectedZipName = QString("QFFMediaConverter-%1-linux.tar.gz").arg(versionNumber);
         #else
                 expectedZipName = "dist_unknown.zip";
         #endif
@@ -137,7 +140,9 @@ void UpdateManager::downloadUpdate(const QString &url) {
     qDebug() << "Downloading update from:" << url;
 
     QString appDir = QCoreApplication::applicationDirPath();
-    QString updateFilePath = appDir + "/update.zip"; // Or use QDir::separator()
+    QUrl qurl(url);
+    QString fileName = QFileInfo(qurl.path()).fileName(); // e.g., "QFFMediaConverter-1.2.11-win64.exe"
+    QString updateFilePath = appDir + QDir::separator() + fileName;
 
     downloadFile = new QFile(updateFilePath);
     if (!downloadFile->open(QIODevice::WriteOnly)) {
