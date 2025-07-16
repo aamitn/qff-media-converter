@@ -212,71 +212,10 @@ jobs:
     - name: Deploy macOS Application (using macdeployqt)
       run: |
         ls -la
-        macdeployqt ${{github.workspace}}/build/qffgui.app -qmldir="${{github.workspace}}/"
+        macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
+        ls -la
       working-directory: ${{github.workspace}}/build
 
-    - name: Create macOS DMG
-      run: |
-        APP_NAME="qffgui" # Replace with your actual app name (e.g., "qffgui")
-        DMG_NAME="${APP_NAME}-Installer.dmg" # Name of the output DMG file
-        APP_PATH="${{github.workspace}}/build/${APP_NAME}.app"
-        DMG_PATH="${{github.workspace}}/build/${DMG_NAME}"
-        VOLUME_NAME="${APP_NAME} Installer" # Volume name when the DMG is mounted
-
-        # Create a temporary directory for the DMG content
-        mkdir -p dmg_stage
-
-        # Copy your .app bundle into the DMG staging area
-        cp -r "${APP_PATH}" dmg_stage/
-
-        # (Optional) Add a symlink to /Applications for easy drag-and-drop installation
-        ln -s /Applications dmg_stage/Applications
-
-        # --- Create the DMG ---
-        # 1. Create a blank disk image
-        hdiutil create -ov -fs HFS+ -size 500m -volname "${VOLUME_NAME}" "${DMG_PATH}.temp.dmg"
-
-        # 2. Mount the temporary disk image
-        hdiutil attach "${DMG_PATH}.temp.dmg" -mountpoint "/Volumes/${VOLUME_NAME}"
-
-        # 3. Copy contents to the mounted image
-        cp -r dmg_stage/* "/Volumes/${VOLUME_NAME}/"
-
-        # (Optional) Customize the DMG background image and icon arrangement
-        # You'll need to have these files in your repository or generate them.
-        # Example: if you have a 'background.png' and want to place icons
-        # cp background.png "/Volumes/${VOLUME_NAME}/.background.png"
-        # /usr/bin/osascript <<EOD
-        #   tell application "Finder"
-        #     tell disk "${VOLUME_NAME}"
-        #       open
-        #       set current view of container window to icon view
-        #       set toolbar visible of container window to false
-        #       set statusbar visible of container window to false
-        #       set the bounds of container window to {100, 100, 600, 800}
-        #       set view options of container window to (make new icon view options at end of properties with properties {icon size:128, arrangement:not arranged, background picture:file ".background.png"})
-        #       set position of item "${APP_NAME}.app" of container window to {150, 180}
-        #       set position of item "Applications" of container window to {450, 180}
-        #       update the container window
-        #       delay 5
-        #       close
-        #     end tell
-        #   end tell
-        # EOD
-        # chmod -Rfv "u+w" "/Volumes/${VOLUME_NAME}"/.background.png
-        # sync
-
-        # 4. Unmount the disk image
-        hdiutil detach "/Volumes/${VOLUME_NAME}"
-
-        # 5. Convert to a compressed, read-only DMG
-        hdiutil convert "${DMG_PATH}.temp.dmg" -format UDZO -o "${DMG_PATH}"
-
-        # Clean up temporary DMG
-        rm "${DMG_PATH}.temp.dmg"
-        
-        ls -la
-      working-directory: ${{github.workspace}}/build # Run from the build directory
 
     - name: Upload Release (Tag Push - Final Release)
       if: startsWith(github.ref, 'refs/tags/')
