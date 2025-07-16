@@ -48,7 +48,6 @@ jobs:
     - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
         ls -la
-        macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
         macdeployqt ${{github.workspace}}/build/qffgui.app -qmldir="${{github.workspace}}/"
         ls -la
       working-directory: ${{github.workspace}}/build
