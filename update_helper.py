@@ -1,47 +1,36 @@
 import os
-import shutil
 import subprocess
 import sys
 import io
+import time
+import platform
+import webbrowser
+
+# Optional: set your actual GitHub releases page here
+GITHUB_RELEASES_URL = "https://github.com/youruser/yourrepo/releases"
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
-import time
-import zipfile
-import platform
 
 def log(msg):
     print(f"[Updater] {msg}")
 
-def unzip_update(zip_path, extract_to):
-    log(f"Unzipping: {zip_path} → {extract_to}")
-    try:
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(extract_to)
-        log("Unzip successful.")
-        return True
-    except Exception as e:
-        log(f"Failed to unzip: {e}")
-        return False
-
 def kill_process(process_name):
     log(f"Killing process: {process_name}")
     try:
-        subprocess.run(["taskkill", "/IM", process_name, "/F", "/T"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(["taskkill", "/IM", process_name, "/F", "/T"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception as e:
         log(f"Failed to kill process {process_name}: {e}")
 
-def copy_dist_files(dist_dir, target_dir):
-    log(f"Copying files from {dist_dir} to {target_dir}...")
-    for root, dirs, files in os.walk(dist_dir):
-        for file in files:
-            src_file = os.path.join(root, file)
-            rel_path = os.path.relpath(src_file, dist_dir)
-            dest_file = os.path.join(target_dir, rel_path)
-
-            os.makedirs(os.path.dirname(dest_file), exist_ok=True)
-            shutil.copy2(src_file, dest_file)
-            log(f"→ {rel_path}")
-    log("File copy complete.")
+def run_installer(installer_path):
+    log(f"Running installer: {installer_path}")
+    try:
+        subprocess.run([installer_path], shell=True)  # Waits for installer to finish
+        return True
+    except Exception as e:
+        log(f"Could not run installer: {e}")
+        return False
 
 def restart_app(exe_path):
     log(f"Restarting application: {exe_path}")
@@ -50,57 +39,74 @@ def restart_app(exe_path):
     except Exception as e:
         log(f"Could not restart application: {e}")
 
-def main():
-    script_dir = os.path.abspath(os.path.dirname(__file__))
-    zip_path = os.path.join(script_dir, "update.zip")
-    dist_dir = os.path.join(script_dir, "dist")
-    # Detect OS and set app executable path accordingly
-    if platform.system() == "Windows":
-        app_exe = os.path.join(script_dir, "qffgui.exe")
-    else:
-        app_exe = os.path.join(script_dir, "qffgui")  # Unix-like systems
-
+def show_release_dialog():
+    log("Non-Windows platform detected. Showing update link...")
     try:
-        log("Starting update process...")
+        # Use platform-native GUI dialog
+        if sys.platform.startswith("linux") or sys.platform == "darwin":
+            import tkinter as tk
+            from tkinter import messagebox
 
-        # Wait briefly to allow main app to exit
-        time.sleep(2)
-
-        # Step 1: Unzip
-        if not unzip_update(zip_path, script_dir):
-            log("Aborting update due to unzip failure.")
-            return
-
-        # Step 2: Kill running process
-        kill_process("qffgui.exe")
-
-        # Step 3: Copy updated files
-        copy_dist_files(dist_dir, script_dir)
-
-        # Step 4: Restart the app
-        success = restart_app(app_exe)
-        if not success:
-            log("App failed to restart.")
-            return
-
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showinfo("Update Available",
+                                f"Please download the latest update from:\n{GITHUB_RELEASES_URL}",
+                                "Or turn off auto-updates in file->update enabled")
+        else:
+            log(f"Please visit: {GITHUB_RELEASES_URL}")
+        # Optional: open in browser
+        webbrowser.open(GITHUB_RELEASES_URL)
     except Exception as e:
-        log(f"Update Failed! Unhandled exception during update: {e}")
+        log(f"Could not show release dialog: {e}")
+        log(f"Please manually visit: {GITHUB_RELEASES_URL}")
 
-    finally:
-        # Step 5: Cleanup if app was restarted
-        if os.path.exists(zip_path):
-            try:
-                os.remove(zip_path)
-                log("Deleted update.zip")
-            except Exception as e:
-                log(f"Failed to delete update.zip: {e}")
+def main():
+    system = platform.system()
+    script_dir = os.path.abspath(os.path.dirname(__file__))
 
-        if os.path.exists(dist_dir):
+    if system == "Windows":
+        # Windows-specific update workflow
+        installer_file = None
+        for file in os.listdir(script_dir):
+            if file.lower().startswith("qffmediaconverter-") and file.lower().endswith(".exe"):
+                installer_file = file
+                break
+
+        if not installer_file:
+            log("Installer not found in directory.")
+            return
+
+        installer_path = os.path.join(script_dir, installer_file)
+        app_exe_path = os.path.join(script_dir, "qffgui.exe")
+
+        try:
+            log("Starting update process...")
+            time.sleep(2)
+
+            kill_process("qffgui.exe")
+
+            success = run_installer(installer_path)
+            if not success:
+                log("Installer failed to launch.")
+                return
+
+            restart_app(app_exe_path)
+
+        except Exception as e:
+            log(f"Update Failed! Unhandled exception: {e}")
+
+        finally:
+            log("Updater finished. Attempting cleanup...")
             try:
-                shutil.rmtree(dist_dir)
-                log("Deleted dist directory")
+                if os.path.exists(installer_path):
+                    os.remove(installer_path)
+                    log(f"Deleted installer: {installer_file}")
             except Exception as e:
-                log(f"Failed to delete dist directory: {e}")
+                log(f"Failed to delete installer: {e}")
+
+    else:
+        # Non-Windows: show dialog with GitHub release link
+        show_release_dialog()
 
 if __name__ == "__main__":
     main()

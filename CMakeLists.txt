@@ -1,4 +1,4 @@
-set(PROJECT_VERSION 1.2.11)
+set(PROJECT_VERSION 1.2.12)
 
 # Informative message at the start of configuration
 message(STATUS "--- Configuring QFF Media Converter (v${PROJECT_VERSION}) ---")
@@ -206,7 +206,6 @@ add_custom_command(TARGET qffgui POST_BUILD
 
     # Step 0: Copy Scripts to build dir from project base
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/update_helper.py"
         "${CMAKE_SOURCE_DIR}/unzip_ffmpeg.py"
         "$<TARGET_FILE_DIR:qffgui>"
     COMMENT "Copying helper scripts to build output directory"
@@ -216,7 +215,6 @@ add_custom_command(TARGET qffgui POST_BUILD
 
     # Step 0: Copy Scripts to release dir/dist
    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-       "${CMAKE_SOURCE_DIR}/update_helper.py"
        "${CMAKE_SOURCE_DIR}/unzip_ffmpeg.py"
        "${RELEASE_DIR}"
    COMMENT "Copying Python script to build output directory"
@@ -303,6 +301,9 @@ if(CMAKE_SYSTEM_NAME MATCHES "Windows")
 
     # This helps format ON/OFF correctly in .iss
     set(CPACK_INNOSETUP_USE_CMAKE_BOOL_FORMAT ON)
+
+    # run exe after install/update
+    set(CPACK_INNOSETUP_RUN_EXECUTABLES "qffgui")
 
 
 elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin") # macOS

@@ -157,7 +157,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}/build/qffgui-*.*.*-Linux.tar.gz
+          ${{github.workspace}}/build/QFFMediaConverter-*.*.*-Linux.tar.gz
           ${{github.workspace}}/build/*.deb
           ${{github.workspace}}/build/*.rpm
         draft: false
@@ -177,7 +177,7 @@ jobs:
         name: "Development Build - ${{ github.sha }}"
         tag_name: "dev" # Use a distinct tag for dev Linux builds
         files: |
-          ${{github.workspace}}/build/qffgui-*.*.*-Linux.tar.gz
+          ${{github.workspace}}/build/QFFMediaConverter-*.*.*-Linux.tar.gz
           ${{github.workspace}}/build/*.deb
           ${{github.workspace}}/build/*.rpm
         draft: true

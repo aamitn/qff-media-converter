@@ -11,6 +11,7 @@
 #include <QProgressDialog>
 #include <QFile>
 #include <QTimer>
+#include <QStandardPaths>
 
 
 void UpdateManager::showError(const QString &message, QWidget *parent) {
@@ -139,14 +140,13 @@ void UpdateManager::handleLatestReleaseReply() {
 void UpdateManager::downloadUpdate(const QString &url) {
     qDebug() << "Downloading update from:" << url;
 
-    QString appDir = QCoreApplication::applicationDirPath();
+    QString tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     QUrl qurl(url);
     QString fileName = QFileInfo(qurl.path()).fileName(); // e.g., "QFFMediaConverter-1.2.11-win64.exe"
-    QString updateFilePath = appDir + QDir::separator() + fileName;
+    QString updateFilePath = tempDir + QDir::separator() + fileName;
 
     downloadFile = new QFile(updateFilePath);
     if (!downloadFile->open(QIODevice::WriteOnly)) {
-
         QString err = QString("Could not open file for download: %1").arg(downloadFile->errorString());
         emit error(err);
         showError(err);
@@ -158,7 +158,6 @@ void UpdateManager::downloadUpdate(const QString &url) {
 
     QNetworkRequest request(url);
     downloadReply = networkManager->get(request);
-
 
     QProgressDialog *progressDialog = new QProgressDialog(nullptr);
     progressDialog->setWindowTitle("Downloading Update...");
@@ -212,35 +211,39 @@ void UpdateManager::handleDownloadFinished() {
     // or you can explicitly delete it after update process is initiated if it's no longer needed for cleanup by script
 }
 
+
 void UpdateManager::initiateUpdateProcess() {
     qDebug() << "Initiating update process...";
 
-    QString appInstallDir = QCoreApplication::applicationDirPath();
-    QString scriptPath;
-    QString pythonExecutable;
+    // Step 1: Get temp directory path
+    QString tempDirPath = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+    QDir tempDir(tempDirPath);
 
-
+    // Step 2: Find installer by expected name pattern
+    QStringList filter;
     #ifdef Q_OS_WIN
-        scriptPath = appInstallDir + "/update_helper.py";
-        pythonExecutable = "python"; // or full path if known
-    #elif defined(Q_OS_UNIX)
-        scriptPath = appInstallDir + "/update_helper.py";
-        pythonExecutable = "python3"; // default on Linux/macOS
+        filter << "QFFMediaConverter-*-win64.exe";
+    #elif defined(Q_OS_MAC)
+        filter << "QFFMediaConverter-*-mac.dmg";
+    #elif defined(Q_OS_LINUX)
+        filter << "QFFMediaConverter-*-linux.tar.gz"; // or .AppImage
     #endif
 
-
-    if (!QFile::exists(scriptPath)) {
-        QString err = "Updater script not found at: " + scriptPath;
+    QStringList matches = tempDir.entryList(filter, QDir::Files);
+    if (matches.isEmpty()) {
+        QString err = "No installer found in temp directory: " + tempDirPath;
         emit error(err);
         showError(err);
         return;
     }
 
-    qDebug() << "Launching updater without arguments:" << scriptPath;
-       bool started = QProcess::startDetached(pythonExecutable, QStringList() << scriptPath);
+    QString installerPath = tempDir.absoluteFilePath(matches.first());
+    qDebug() << "Found installer:" << installerPath;
 
+    // Step 3: Launch installer
+    bool started = QProcess::startDetached(installerPath);
     if (!started) {
-        QString err = "Failed to launch update script: " + scriptPath;
+        QString err = "Failed to launch installer: " + installerPath;
         emit error(err);
         showError(err);
         return;
@@ -248,6 +251,6 @@ void UpdateManager::initiateUpdateProcess() {
 
     emit updateInitiated();
 
+    // Step 4: Exit current application
     qApp->exit(0);
-
 }
