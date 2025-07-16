@@ -10,9 +10,9 @@
 
 | **Platforms**    | **Link**                                                                                                                                                                                            |
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-**Windows**  | [Installer/EXE](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-win64.exe) • [Zip/Portable](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-win64.zip) |
-| **Linux** | [RPM](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.14-Linux.rpm) • [DEB](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.14-Linux.deb) • [TAR.GZ](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.14-Linux.tar.gz) |
-| **MacOS** | [App](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-v1.2.14-macos.zip) • [DMG](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-v1.2.14-macos.dmg) |
+**Windows**  | [EXE/Installer](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-win64.exe) • [ZIP/Portable](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-win64.zip) |
+| **Linux** | [RPM](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-Linux.rpm) • [DEB](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-Linux.deb) • [TAR.GZ](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-1.2.14-Linux.tar.gz) |
+| **MacOS** | [APP](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-v1.2.14-macos.zip) • [DMG](https://github.com/aamitn/qff-media-converter/releases/latest/download/QFFMediaConverter-v1.2.14-macos.dmg) |
 
 
 **QFF Media Converter** is a lightweight, Qt-based front-end application that simplifies media conversion tasks using the powerful FFmpeg engine. Developed by [Bitmutex Technologies](https://www.bitmutex.com), the tool provides an intuitive UI for converting audio, image  and video files from  _**`any`**_  to _**`any`**_  formats.
