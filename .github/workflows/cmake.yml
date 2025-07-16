@@ -1,21 +1,3 @@
-name: CMake Deploy
-
-on:
-  push:
-    branches: [ "main" ]
-    tags: [ "*" ]   
-  pull_request: 
-    branches: [ "main" ]
-
-permissions:
-  contents: write
-
-env:
-  BUILD_TYPE: Release
-
-jobs:
-
-  
 
 name: CMake Deploy
 
