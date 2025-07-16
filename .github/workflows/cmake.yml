@@ -12,6 +12,7 @@ permissions:
 
 env:
   BUILD_TYPE: Release
+  VERSION: snapshot  # default value
 
 jobs:
   # --- START OF NEW WINDOWS BUILD JOB ---
