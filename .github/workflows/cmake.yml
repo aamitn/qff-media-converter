@@ -211,9 +211,6 @@ jobs:
 
     - name: Deploy macOS Application (using macdeployqt)
       run: |
-        QT_BIN_DIR=$(find $(echo $QT_ROOT_DIR) -name "bin" -type d)
-        echo "QT_BIN_DIR: $QT_BIN_DIR"
-        export PATH=$QT_BIN_DIR:$PATH
         macdeployqt ${{github.workspace}}/build/qffgui -qmldir="${{github.workspace}}/"
       working-directory: ${{github.workspace}}/build
 
@@ -293,7 +290,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         name: "Development Build - ${{ github.sha }}"
-        tag_name: "dev-macos"
+        tag_name: "dev"
         files: |
           ${{github.workspace}}/build/*.dmg
         draft: true
