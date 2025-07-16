@@ -254,12 +254,63 @@ if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(qffgui)
 endif()
 
-set(CPACK_PACKAGE_NAME qffgui)
+set(CPACK_PACKAGE_NAME QFFMediaConverter)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "QFF Media Converter")
 set(CPACK_PACKAGE_VENDOR "Bitmutex Technologies")
 set(CPACK_PACKAGE_INSTALL_DIRECTORY ${CPACK_PACKAGE_NAME})
 set(CPACK_VERBATIM_VARIABLES ON)
-set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/qffgui")
+set(CPACK_PACKAGING_INSTALL_PREFIX "/${CPACK_PACKAGE_NAME}")
+
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(CPACK_PACKAGING_INSTALL_PREFIX "/")
+
+    # --- INNO SETUP SPECIFIC CONFIGURATIONS ---
+
+    # Define your main executable (no path or .exe extension)
+    set(CPACK_PACKAGE_EXECUTABLES "qffgui" "QFF Media Converter" )
+
+    # This enables creation of a Start Menu folder
+    set(CPACK_INNOSETUP_PROGRAM_MENU_FOLDER "QFF Media Converter")
+
+    # This ensures an uninstall shortcut is created
+    set(CPACK_INNOSETUP_CREATE_UNINSTALL_LINK ON)
+
+    # Ensure the installer allows choosing install directory
+    set(CPACK_INNOSETUP_ALLOW_CUSTOM_DIRECTORY ON)
+
+    set(CPACK_INNOSETUP_MENU_LINKS
+        "https://bitmutex.com/contact"
+        "Bitmutex Support"
+        "https://bitmutex.com"
+        "Bitmutex Website"
+        "https://github.com/aamitn/qff-media-converter/blob/main/README.md"
+        "QFF Docs")
+
+    # Set the root install location (default is fine, but you can override)
+    set(CPACK_INNOSETUP_INSTALL_ROOT "{autopf}")
+
+    # Language (you can add more if needed)
+    set(CPACK_INNOSETUP_LANGUAGES "english")
+
+    # Optional: modern look
+    set(CPACK_INNOSETUP_USE_MODERN_WIZARD OFF)
+
+    # Optional: define icon for installer
+    set(CPACK_INNOSETUP_ICON_FILE "${CMAKE_SOURCE_DIR}/icon/logo.ico")
+
+    # Optional: Run the app after install
+    set(CPACK_INNOSETUP_RUN_EXECUTABLES "QFFMediaConverter")
+
+    # This helps format ON/OFF correctly in .iss
+    set(CPACK_INNOSETUP_USE_CMAKE_BOOL_FORMAT ON)
+
+
+elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin") # macOS
+    set(CPACK_PACKAGING_INSTALL_PREFIX "/Applications") # This is a common location
+else()
+    set(CPACK_PACKAGING_INSTALL_PREFIX "/opt/${CPACK_PACKAGE_NAME}")
+endif()
+
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Amit Nandi <amitbitmutex.com>")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS libc6 libstdc++6 libgcc-s1)
 include(CPack)
