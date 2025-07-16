@@ -234,7 +234,8 @@ jobs:
         ls -la
         which macdeployqt
         macdeployqt ${{github.workspace}}/build/QFFMediaConverter-${{ env.VERSION }}-macos.app -dmg -qmldir="${{github.workspace}}/"
-        mv ${{github.workspace}}/build/qffgui.dmg ${{github.workspace}}/build/QFFMediaConverter-${{ env.VERSION }}-macos.dmg
+        ls -la
+        mv ${{github.workspace}}/build/QFFMediaConverter-${{ env.VERSION }}-macos.dmg ${{github.workspace}}/build/QFFMediaConverter-${{ env.VERSION }}-macos.dmg
         ls -la
       working-directory: ${{github.workspace}}/build
 
