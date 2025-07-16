@@ -48,7 +48,7 @@ jobs:
     - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
         ls -la
-        macdeployqt ${{github.workspace}}/build/qffgui.app -qmldir="${{github.workspace}}/"
+        macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
         ls -la
       working-directory: ${{github.workspace}}/build
 
@@ -59,7 +59,7 @@ jobs:
       with:
         files: |
           ${{github.workspace}}/build/*.dmg
-          ${{github.workspace}}/build/*.app
+          ${{github.workspace}}/build/qffgui.app
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +72,7 @@ jobs:
         tag_name: "dev"
         files: |
           ${{github.workspace}}/build/*.dmg
-          ${{github.workspace}}/build/*.app
+          ${{github.workspace}}/build/qffgui.app
         draft: true
         prerelease: true
       env:
