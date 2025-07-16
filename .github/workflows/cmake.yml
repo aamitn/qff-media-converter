@@ -245,7 +245,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}/build/*.dmg # The macOS DMG file
+          ${{github.workspace}}/build/*.dmg
+          ${{github.workspace}}/build/*.zip
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

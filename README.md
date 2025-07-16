@@ -12,7 +12,7 @@
 |---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 **Windows**  | [Installer/EXE](https://github.com/aamitn/qff-media-converter/releases/latest/download/qff_installer.exe) • [Zip/Portable](https://github.com/aamitn/qff-media-converter/releases/latest/download/dist.zip) |
 | **Linux** | [RPM](hhttps://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.rpm) • [DEB](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.deb) • [.TAR.GZ](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-1.2.11-Linux.tar.gz)                                         |
-| **MacOS** | [App](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui.app) • [DMG](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui.dmg) |
+| **MacOS** | [App](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui-macos.zip ) • [DMG](https://github.com/aamitn/qff-media-converter/releases/latest/download/qffgui.dmg) |
 
 
 **QFF Media Converter** is a lightweight, Qt-based front-end application that simplifies media conversion tasks using the powerful FFmpeg engine. Developed by [Bitmutex Technologies](https://www.bitmutex.com), the tool provides an intuitive UI for converting audio, image  and video files from  _**`any`**_  to _**`any`**_  formats.
