@@ -218,7 +218,9 @@ jobs:
       
     - name: Package
       working-directory: ${{github.workspace}}/build
-      run: cpack -G DragNDrop && cpack -G ZIP && cpack -G Bundle && cpack -G productbuild
+      run: |
+        cp qffgui.app qffgui-${{ env.VERSION }}.app 
+        cpack -G DragNDrop && cpack -G ZIP && cpack -G Bundle && cpack -G productbuild
 
     - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
