@@ -211,6 +211,7 @@ jobs:
 
     - name: Deploy macOS Application (using macdeployqt)
       run: |
+        ls -la
         macdeployqt ${{github.workspace}}/build/qffgui -qmldir="${{github.workspace}}/"
       working-directory: ${{github.workspace}}/build
 
