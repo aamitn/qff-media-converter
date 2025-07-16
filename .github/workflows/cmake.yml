@@ -12,6 +12,7 @@ permissions:
 
 env:
   BUILD_TYPE: Release
+  VERSION : snapshot # Default version, will be overridden by tag if available
 
 jobs:
   # --- START OF NEW WINDOWS BUILD JOB ---
@@ -226,7 +227,7 @@ jobs:
     - name: Package
       working-directory: ${{github.workspace}}/build
       run: |
-        cp -r qffgui.app qffgui-1.2.12.app 
+        cp -r qffgui.app qffgui-${{ env.VERSION }}.app 
         cpack -G DragNDrop && cpack -G ZIP && cpack -G Bundle && cpack -G productbuild
 
     - name: Deploy macOS Application (generate dmg using macdeployqt)
@@ -234,7 +235,7 @@ jobs:
         ls -la
         which macdeployqt
         macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
-        mv ${{github.workspace}}/build/qffgui.dmg ${{github.workspace}}/build/QFFMediaConverter-mac.dmg
+        mv ${{github.workspace}}/build/qffgui.dmg ${{github.workspace}}/build/QFFMediaConverter-${{ env.VERSION }}-mac.dmg
         ls -la
       working-directory: ${{github.workspace}}/build
 
