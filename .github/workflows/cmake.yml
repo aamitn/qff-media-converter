@@ -14,7 +14,171 @@ env:
   BUILD_TYPE: Release
 
 jobs:
+  # --- START OF NEW WINDOWS BUILD JOB ---
+  build-win:
+    runs-on: windows-latest
 
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Qt
+      id: install-qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: '6.9.1'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2022_64'
+        modules: 'qtmultimedia'
+        tools: 'tools_ifw'
+        install-deps: "true"
+
+    - name: Configure MSVC
+      uses: TheMrMilchmann/setup-msvc-dev@v3
+      with:
+        arch: x64
+
+    - name: Configure CMake
+      run: cmake -S . -B ${{github.workspace}}/build 
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build 
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+
+    - name: Upload Release (Tag Push - Final Release)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist.zip
+          qff_installer.exe
+        draft: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Draft Release (Untagged Push)
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        name: "Development Build - ${{ github.sha }}"
+        tag_name: "dev"
+        files: |
+          dist.zip
+          qff_installer.exe
+        draft: true
+        prerelease: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # --- END OF NEW WINDOWS BUILD JOB ---
+
+    
+  # --- START OF NEW LINUX BUILD JOB ---
+  build-linux:
+    runs-on: ubuntu-latest # Or debian-latest for more control
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libgl-dev # Essential build tools and OpenGL libs
+
+    - name: Install Qt
+      id: install-qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        aqtversion: '==3.1.*'
+        version: '6.9.1'
+        host: 'linux'
+        target: 'desktop'
+        arch: 'linux_gcc_64' # Common Linux GCC architecture
+        modules: 'qtmultimedia'
+        tools: 'tools_ifw' # If you plan to build Linux installers with IFW
+        setup-python: true
+
+    - name: Configure CMake
+      # For Linux, it's common to explicitly set the build type to Release for deployed artifacts
+      run: cmake -S . -B ${{github.workspace}}/build 
+
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build 
+
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}}
+
+
+    - name: Run CPack (Optional -> If you want to create installers/packages)
+      # This step assumes you have CPack configuration in your CMakeLists.txt
+      # and that your Linux build will produce a .deb, .rpm, .tar.gz or AppImage
+      # cd ${{github.workspace}}/build && cpack -G DEB
+      run: |
+        cmake --build ${{github.workspace}}/build --target package 
+        cpack -G DEB # Generate a Debian package
+        cpack -G TGZ # Generate a tar.gz package
+        cpack -G RPM # Generate a Redhat package
+        
+      working-directory: ${{github.workspace}}/build # CPack usually runs from build directory
+
+
+    # Optional: Packaging the application for distribution (e.g., AppImage, tar.gz)
+    # This will depend on your CMake setup for packaging.
+    - name: Package Linux Application
+      # Example: create a tar.gz of your built application directory
+      # This assumes your built executable and its dependencies are in a 'build/bin' or similar folder.
+      # You need to adjust 'your_app_name' and the path.
+      run: |
+        # Use linuxdeploy or appimagetool if you want to create an AppImage
+        cd ${{github.workspace}}/build
+        mkdir staged_app
+        cp -r ./qffgui staged_app/ # Copy your executable
+        # Use ldd to find runtime dependencies and copy them to staged_app if not static
+        # cp -r your_built_app_folder staged_app/
+        tar -czvf dist_linux.tar.gz -C . staged_app # Example: create a tar.gz of the staged app
+      working-directory: ${{github.workspace}}/build # Run packaging from build directory
+      # This step heavily depends on how you configure your Linux deployment.
+      # You might use linuxdeployqt for AppImages, or simply tar up the necessary files.
+      # The `dist_linux.tar.gz` is a placeholder for your final artifact.
+
+    - name: Upload Linux Release (Tag Push - Final Release)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          ${{github.workspace}}/build/qffgui-*.*.*-Linux.tar.gz
+          ${{github.workspace}}/build/*.deb
+          ${{github.workspace}}/build/*.rpm
+        draft: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Show BUILD dirs
+      run: |
+          echo "Current directory: $(pwd)"
+          echo "Contents of build directory:"
+          ls -la ${{github.workspace}}/build
+
+    - name: Upload Linux Draft Release (Untagged Push)
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        name: "Development Build - ${{ github.sha }}"
+        tag_name: "dev" # Use a distinct tag for dev Linux builds
+        files: |
+          ${{github.workspace}}/build/qffgui-*.*.*-Linux.tar.gz
+          ${{github.workspace}}/build/*.deb
+          ${{github.workspace}}/build/*.rpm
+        draft: true
+        prerelease: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # --- END OF NEW LINUX BUILD JOB ---
   
 
   # --- START OF NEW MACOS BUILD JOB ---
@@ -47,16 +211,35 @@ jobs:
 
     - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
-        cp -r qffgui.app qffgui-1.2.10.app
-        macdeployqt qffgui.app -dmg -qmldir="${{github.workspace}}/" -verbose=2
-        ls -la ${{github.workspace}}/build
-        cpack -G productbuild
+        ls -la
+        which macdeployqt
+        macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
+        ls -la
       working-directory: ${{github.workspace}}/build
-      
-    - run : |
-         ls -la ${{github.workspace}}/build
 
+    - name: Create .zip archive of the .app bundle
+      working-directory: ${{github.workspace}}/build
+      run: |
+        APP_BUNDLE_DIR="qffgui.app" # The renamed .app bundle directory
+        ZIP_FILE_NAME="qffgui-macos.zip" # The desired name for the zip file
 
+        # Verify the .app bundle exists before zipping
+        if [ ! -d "${APP_BUNDLE_DIR}" ]; then
+          echo "Error: ${APP_BUNDLE_DIR} not found. Cannot create zip archive."
+          exit 1
+        fi
+
+        # Create the zip archive. The -r flag is for recursive.
+        # The syntax "zip -r destination.zip source_dir/" is common.
+        # Using -X to exclude .DS_Store and __MACOSX (resource fork metadata)
+        # Using -q for quiet output
+        zip -r -X -q "${ZIP_FILE_NAME}" "${APP_BUNDLE_DIR}"
+        
+        echo "Created ${ZIP_FILE_NAME}"
+        ls -la # Confirm the .zip file is present
+        
+        
+        
     - name: Upload Release (Tag Push - Final Release)
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
@@ -75,7 +258,7 @@ jobs:
         tag_name: "dev"
         files: |
           ${{github.workspace}}/build/*.dmg
-          ${{github.workspace}}/build/*.app
+          ${{github.workspace}}/build/*.zip
         draft: true
         prerelease: true
       env:
