@@ -227,23 +227,22 @@ jobs:
     - name: Package
       working-directory: ${{github.workspace}}/build
       run: |
-        cp -r qffgui.app qffgui-${{ env.VERSION }}.app 
-        cpack -G DragNDrop && cpack -G ZIP && cpack -G Bundle && cpack -G productbuild
+        cp -r qffgui.app QFFMediaConverter-${{ env.VERSION }}-macos.app 
 
     - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
         ls -la
         which macdeployqt
         macdeployqt ${{github.workspace}}/build/qffgui.app -dmg -qmldir="${{github.workspace}}/"
-        mv ${{github.workspace}}/build/qffgui.dmg ${{github.workspace}}/build/QFFMediaConverter-${{ env.VERSION }}-mac.dmg
+        mv ${{github.workspace}}/build/qffgui.dmg ${{github.workspace}}/build/QFFMediaConverter-${{ env.VERSION }}-macos.dmg
         ls -la
       working-directory: ${{github.workspace}}/build
 
     - name: Create .zip archive of the .app bundle
       working-directory: ${{github.workspace}}/build
       run: |
-        APP_BUNDLE_DIR="qffgui.app" # The renamed .app bundle directory
-        ZIP_FILE_NAME="qffgui-macos.zip" # The desired name for the zip file
+        APP_BUNDLE_DIR="QFFMediaConverter-${{ env.VERSION }}.app" # The renamed .app bundle directory
+        ZIP_FILE_NAME="QFFMediaConverter-${{ env.VERSION }}-macos.zip" # The desired name for the zip file
 
         # Verify the .app bundle exists before zipping
         if [ ! -d "${APP_BUNDLE_DIR}" ]; then
