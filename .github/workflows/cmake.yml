@@ -217,7 +217,7 @@ jobs:
 
     - name: Create macOS DMG
       run: |
-        APP_NAME="qffgui" # Replace with your actual app name (e.g., "qffgui")
+        APP_NAME="qffgui.app" # Replace with your actual app name (e.g., "qffgui")
         DMG_NAME="${APP_NAME}-Installer.dmg" # Name of the output DMG file
         APP_PATH="${{github.workspace}}/build/${APP_NAME}.app"
         DMG_PATH="${{github.workspace}}/build/${DMG_NAME}"
@@ -274,6 +274,8 @@ jobs:
 
         # Clean up temporary DMG
         rm "${DMG_PATH}.temp.dmg"
+        
+        ls -la
       working-directory: ${{github.workspace}}/build # Run from the build directory
 
     - name: Upload Release (Tag Push - Final Release)
