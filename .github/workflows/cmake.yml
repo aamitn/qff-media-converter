@@ -48,7 +48,7 @@ jobs:
     - name: Deploy macOS Application (generate dmg using macdeployqt)
       run: |
         macdeployqt qffgui.app -dmg -qmldir="${{github.workspace}}/" -verbose=2
-        cpack -G PKG
+        cpack -G productbuild
       working-directory: ${{github.workspace}}/build
       
     - run : |
