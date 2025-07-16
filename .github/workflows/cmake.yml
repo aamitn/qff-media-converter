@@ -51,14 +51,16 @@ jobs:
     - name: Package
       working-directory: ${{github.workspace}}/build
       run: cpack -G ZIP && cpack -G INNOSETUP
-      
+    
+    - run: dir ${{github.workspace}}/build
+    
     - name: Upload Release (Tag Push - Final Release)
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          ${{github.workspace}}/build/qffgui-*.*.*-win64.zip
-          ${{github.workspace}}/build/qffgui-*.*.*-win64.exe
+          ${{github.workspace}}/build/*.zip
+          ${{github.workspace}}/build/*.exe
         draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
