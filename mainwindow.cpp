@@ -13,6 +13,8 @@
 #include <QMediaMetaData>
 #include <QPixmap>
 #include <QAudioOutput>
+#include <QDesktopServices>
+
 
 // --- DEFINE THE STATIC CONST LISTS HERE (outside any function) ---
 const QStringList MainWindow::SUPPORTED_VIDEO_FORMATS = {
@@ -63,6 +65,37 @@ MainWindow::MainWindow(QWidget *parent)
     // ---Instantiate Menu Bar ---
     setMenuBar(MenuBarHelper::createMenuBar(this));
 
+    // ---Style Convert Button ---
+    ui->convertButton->setStyleSheet(R"(
+        QPushButton {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 12px;
+            background: qlineargradient(
+                x1: 0, y1: 0, x2: 1, y2: 1,
+                stop: 0 #e53935, stop: 1 #b71c1c
+            );
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        QPushButton:hover {
+            background: qlineargradient(
+                x1: 0, y1: 0, x2: 1, y2: 1,
+                stop: 0 #ff5252, stop: 1 #d32f2f
+            );
+        }
+
+        QPushButton:pressed {
+            background-color: #c62828;
+            padding-left: 12px;
+            padding-top: 12px;
+        }
+    )");
+
+    // ---Instantiate Buttons---
     connect(ui->browseButton, &QPushButton::clicked, this, &MainWindow::browseFile);
     connect(ui->convertButton, &QPushButton::clicked, this, &MainWindow::startConversion);
     connect(ui->outputBrowseButton, &QPushButton::clicked, this, &MainWindow::browseOutputFile);
@@ -596,11 +629,28 @@ void MainWindow::conversionFinished(int code, QProcess::ExitStatus status) {
     // Clean up the QProcess object
     if (process) {
         process->deleteLater();
-        process = nullptr; // Set to nullptr to avoid dangling pointer
+        process = nullptr;
     }
 
-    // --- Show a dialog on conversion complete ---
-    QMessageBox::information(this, "Conversion Complete", "The Media conversion process has finished successfully!");
+    // --- Custom buttons ---
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Conversion Complete");
+    msgBox.setText("The media conversion process has finished successfully!");
+    QPushButton *okButton = msgBox.addButton(QMessageBox::Ok);
+    QPushButton *openFolderButton = msgBox.addButton("Open Output Folder", QMessageBox::ActionRole);
+    QPushButton *openFileButton = msgBox.addButton("Open Output File", QMessageBox::ActionRole);
+
+    msgBox.exec();
+
+    QString outputFile = ui->outputEdit->text();
+    QFileInfo fileInfo(outputFile);
+    QString outputDir = fileInfo.absolutePath();
+
+    if (msgBox.clickedButton() == openFolderButton) {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(outputDir));
+    } else if (msgBox.clickedButton() == openFileButton) {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(outputFile));
+    }
 }
 
 void MainWindow::getDuration(const QString &filePath) {

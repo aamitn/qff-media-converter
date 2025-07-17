@@ -210,8 +210,7 @@ add_custom_command(TARGET qffgui POST_BUILD
         "$<TARGET_FILE_DIR:qffgui>"
     COMMENT "Copying helper scripts to build output directory"
 
-    # Step 0: Create release directory
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${RELEASE_DIR}"
+
 
     # Step 0: Copy Scripts to release dir/dist
    COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -220,13 +219,8 @@ add_custom_command(TARGET qffgui POST_BUILD
    COMMENT "Copying Python script to build output directory"
 
 
-    # Step 4: Create destination directory in packages folder
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${PACKAGE_DATA_DIR}"1
 
-    # Step 5: Copy all contents of release/ to package folder
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${RELEASE_DIR}" "${PACKAGE_DATA_DIR}"
-
-    COMMENT "Deploying with windeployqt and copying release contents to packages/com.bitmutex.qffgui/data"
+    COMMENT "Running Custom Commands"
 
 
 )
