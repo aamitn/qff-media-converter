@@ -24,7 +24,7 @@ if ($LASTEXITCODE -ne 0) {
 # --- Step 2: Build the project ---
 # --build .\build : Builds the project located in the specified build directory
 Write-Host "--- Building project ---"
-cmake --build ".\$buildDir"
+cmake --build ".\$buildDir" --config Release # Added --config Release for release build
 
 # Check if the build step was successful
 if ($LASTEXITCODE -ne 0) {
@@ -33,5 +33,27 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "--- Build process completed successfully ---"
+# --- Step 3: Change directory to build output for CPack ---
+Write-Host "--- Changing directory to build output for CPack ---"
+Set-Location ".\$buildDir"
+
+# Check if changing directory was successful
+if ($LASTEXITCODE -ne 0) { # $LASTEXITCODE will be 0 if Set-Location succeeds
+    Write-Error "Failed to change directory to '.\$buildDir'. Exiting."
+    Read-Host -Prompt "Press Enter to exit..." # Pause on error
+    exit 1
+}
+
+# --- Step 4: Run CPack to generate ZIP package ---
+Write-Host "--- Running CPack to generate ZIP package ---"
+cpack -G ZIP
+
+# Check if the cpack step was successful
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "CPack failed. Exiting."
+    Read-Host -Prompt "Press Enter to exit..." # Pause on error
+    exit 1
+}
+
+Write-Host "--- Build and Packaging process completed successfully ---"
 Read-Host -Prompt "Press Enter to exit..." # Pause on successful completion

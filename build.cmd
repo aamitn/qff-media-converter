@@ -23,7 +23,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo --- Building project ---
 rem --build .\build : Builds the project located in the specified build directory
-cmake --build ".\%buildDir%"
+cmake --build ".\%buildDir%" --config Release
 
 rem Check if the build step was successful
 if %ERRORLEVEL% neq 0 (
@@ -32,6 +32,27 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo --- Build process completed successfully ---
+echo --- Changing directory to build output for CPack ---
+cd ".\%buildDir%"
+
+rem Check if changing directory was successful
+if %ERRORLEVEL% neq 0 (
+    echo ERROR: Failed to change directory to "%buildDir%". Exiting.
+    pause
+    exit /b 1
+)
+
+echo --- Running CPack to generate ZIP package ---
+rem -G ZIP : Specifies the generator for the package (ZIP archive)
+cpack -G ZIP
+
+rem Check if the cpack step was successful
+if %ERRORLEVEL% neq 0 (
+    echo ERROR: CPack failed. Exiting.
+    pause
+    exit /b 1
+)
+
+echo --- Build and Packaging process completed successfully ---
 echo Press any key to exit...
 pause > nul
